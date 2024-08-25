@@ -4,6 +4,8 @@ import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.dto.updateOrderStateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +39,17 @@ public class OrderController {
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    /***
+     * 기본 서치기능은 10으로 고정
+     * @param pageable
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<?> getAllOrders(@PageableDefault(size = 10) Pageable pageable) {
+
+        return ResponseEntity.ok().body(orderService.getAllOrders(pageable));
     }
 
 }
