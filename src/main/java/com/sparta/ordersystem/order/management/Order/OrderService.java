@@ -39,4 +39,19 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    /***
+     * 주문 상태를 업데이트하는 함수
+     * @param orderType
+     * @param orderId
+     */
+    public Order updateOrderState(OrderType orderType, UUID orderId) {
+        //존재하는 주문인지 검증
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        //주문 취소나 주문 확정으로의 상태로 변경
+        order.updateState(orderType);
+
+        return orderRepository.save(order);
+    }
 }

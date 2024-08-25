@@ -1,13 +1,13 @@
 package com.sparta.ordersystem.order.management.Order;
 
 import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.dto.updateOrderStateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +25,18 @@ public class OrderController {
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-
-
     }
+
+    @PatchMapping("{order_id}")
+    public ResponseEntity<?> updateOrder(@RequestBody updateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
+    {
+        try {
+            Order newOrder = orderService.updateOrderState(requestDto.getOrderType(),order_id);
+            return ResponseEntity.ok().body("Order updated successfully with id " + newOrder.getOrder_id()
+            + " state " +newOrder.getState());
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

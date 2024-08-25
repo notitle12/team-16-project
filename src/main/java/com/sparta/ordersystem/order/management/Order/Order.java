@@ -46,4 +46,9 @@ public class Order extends Timestamped {
                 .build();
         orderMenuList.add(orderMenu);
     }
+
+    public void updateState(OrderType newState)
+    {
+        this.state = newState;
+    }
 }
