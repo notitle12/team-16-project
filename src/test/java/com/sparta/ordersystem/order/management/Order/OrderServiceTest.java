@@ -73,4 +73,39 @@ class OrderServiceTest {
         // then
         verify(orderRepository, times(1)).save(any(Order.class));
     }
+
+    @Test
+    @DisplayName("주문 상태 변경 API - 존재하지 않는 주문ID 실패케이스")
+    void testErrorUpdateOrderStateNotExistOrderId()
+    {
+        UUID orderId = UUID.randomUUID();
+
+        given(orderRepository.findById(orderId)).willReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> orderService.updateOrderState(OrderType.running, orderId)
+        );
+
+        assertEquals("존재하지 않는 주문입니다.",exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 API - 성공케이스")
+    void testSuccessUpdateOrderState()
+    {
+        UUID orderId = UUID.randomUUID();
+        Order order = Order.builder()
+                .order_id(orderId)
+                .state(OrderType.create)
+                .build();
+
+        given(orderRepository.findById(order.getOrder_id())).willReturn(Optional.of(order));
+
+        given(orderRepository.save(order)).willReturn(order);
+
+        Order newOrder = orderService.updateOrderState(OrderType.running, orderId);
+
+        assertEquals(order.getOrder_id(), newOrder.getOrder_id());
+        assertEquals(newOrder.getState(), OrderType.running);
+    }
 }
