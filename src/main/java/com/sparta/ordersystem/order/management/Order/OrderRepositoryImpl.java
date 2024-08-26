@@ -37,7 +37,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
 
         List<OrderResponseDto> contents = (List<OrderResponseDto>) results.getResults().stream().map(
                 order -> OrderResponseDto.builder()
-                        .order_id(order.getOrder_id())
+                        .order_id(order.getOrderId())
                         .user_id(order.user_id)
                         .state(order.getState())
                         .created_at(order.getCreated_at())

@@ -45,7 +45,7 @@ public class OrderController {
     {
         try {
             Order newOrder = orderService.updateOrderState(requestDto.getOrderType(),order_id);
-            return ResponseEntity.ok().body("Order updated successfully with id " + newOrder.getOrder_id()
+            return ResponseEntity.ok().body("Order updated successfully with id " + newOrder.getOrderId()
             + " state " +newOrder.getState());
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());

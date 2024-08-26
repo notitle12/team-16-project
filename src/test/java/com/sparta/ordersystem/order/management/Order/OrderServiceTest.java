@@ -102,17 +102,17 @@ class OrderServiceTest {
     {
         UUID orderId = UUID.randomUUID();
         Order order = Order.builder()
-                .order_id(orderId)
+                .orderId(orderId)
                 .state(OrderType.create)
                 .build();
 
-        given(orderRepository.findById(order.getOrder_id())).willReturn(Optional.of(order));
+        given(orderRepository.findById(order.getOrderId())).willReturn(Optional.of(order));
 
         given(orderRepository.save(order)).willReturn(order);
 
         Order newOrder = orderService.updateOrderState(OrderType.running, orderId);
 
-        assertEquals(order.getOrder_id(), newOrder.getOrder_id());
+        assertEquals(order.getOrderId(), newOrder.getOrderId());
         assertEquals(newOrder.getState(), OrderType.running);
     }
 
@@ -159,9 +159,9 @@ class OrderServiceTest {
     void testSuccessDeleteOrder(){
         UUID orderId = UUID.randomUUID();
         Order order = Order.builder()
-                .order_id(orderId)
+                .orderId(orderId)
                 .state(OrderType.create)
-                .is_active(false)
+                .isActive(false)
                 .build();
 
         given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
@@ -170,7 +170,7 @@ class OrderServiceTest {
         Order deleteOrder = orderService.deleteOrder(orderId);
 
         verify(orderRepository, times(1)).save(order);
-        assertEquals(order.getOrder_id(), deleteOrder.getOrder_id());
+        assertEquals(order.getOrderId(), deleteOrder.getOrderId());
         assertEquals(order.getState(), OrderType.create);
         assertEquals(order.getIsActive(), deleteOrder.getIsActive());
     }

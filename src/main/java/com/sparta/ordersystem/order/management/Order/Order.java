@@ -28,15 +28,16 @@ public class Order extends Timestamped {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    UUID order_id;
+    @Column(name = "order_id")
+    UUID orderId;
 
     Long user_id;
 
     OrderType state;  //주문 상태
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "is_active")
     @Builder.Default
-    boolean is_active = true; //주문 취소여부
+    boolean isActive = true; //주문 취소여부
 
     @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
     @Builder.Default
@@ -56,10 +57,10 @@ public class Order extends Timestamped {
     }
 
     public void deleteOrder(){
-        this.is_active = false;
+        this.isActive = false;
     }
 
     public boolean getIsActive(){
-        return this.is_active;
+        return this.isActive;
     }
 }
