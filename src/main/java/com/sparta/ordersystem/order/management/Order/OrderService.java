@@ -5,11 +5,13 @@ import com.sparta.ordersystem.order.management.Menu.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -19,6 +21,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     private final MenuRepository menuRepository;
+    private final MessageSource messageSource;
+
     /**
      * 주문을 등록해주는 메소드
      * @param requestDto
@@ -86,5 +90,25 @@ public class OrderService {
         order.deleteOrder();
 
         return orderRepository.save(order);
+    }
+
+    /***
+     * 주문 상세 조회 시 메뉴의 값들도 같이 조회
+     * @param orderId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public OrderResponseDto getOrderById(UUID orderId) {
+
+        //주문 아이디 존재 검증
+        Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
+                () -> new IllegalArgumentException(
+                        messageSource.getMessage("not.found.order.id",new UUID[]{orderId},"존재하지 않는 주문 ID",
+                                Locale.getDefault())
+                )
+        );
+
+        return orderRepository.getOrderById(orderId);
+
     }
 }

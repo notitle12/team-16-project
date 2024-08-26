@@ -81,4 +81,15 @@ public class OrderController {
         }
 
     }
+
+    /***
+     * 주문 ID를 이용하여 주문 상세 조회
+     * @param order_id
+     * @return
+     */
+    @GetMapping("{order_id}")
+    public ResponseEntity<?> getOrderById(@PathVariable UUID order_id) {
+        return ResponseEntity.ok().body(orderService.getOrderById(order_id));
+
+    }
 }
