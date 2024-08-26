@@ -27,7 +27,8 @@ public class Menu extends Timestamped{
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    private UUID menu_id;
+    @Column(name = "menu_id")
+    private UUID menuId;
 
     private UUID store_id;
 
@@ -38,8 +39,13 @@ public class Menu extends Timestamped{
     private String content;
 
     @Builder.Default
-    private boolean is_active = true;
+    @Column(name = "is_active")
+    private boolean isActive = true;
 
     @OneToMany(mappedBy = "menu")
     private List<OrderMenu> orderMenuList = new ArrayList<>();
+
+    public void deleteMenu(){
+        this.isActive = false;
+    }
 }

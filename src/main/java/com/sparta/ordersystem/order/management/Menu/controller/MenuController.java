@@ -5,10 +5,9 @@ import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.Menu.service.MenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/menus")
@@ -28,5 +27,12 @@ public class MenuController {
         {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @DeleteMapping("{menu_id}")
+    public ResponseEntity<?> deleteMenu(@PathVariable UUID menu_id)
+    {
+        menuService.deleteMenu(menu_id);
+        return ResponseEntity.ok().body("메뉴가 정상적으로 삭제되었습니다.");
     }
 }

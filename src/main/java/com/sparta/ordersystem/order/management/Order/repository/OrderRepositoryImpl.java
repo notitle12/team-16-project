@@ -51,7 +51,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                         .deleted_by(order.getDeleted_by())
                         .order_menu(order.getOrderMenuList().stream().map(
                                 orderMenu -> OrderMenuDto.builder()
-                                        .menu_id(orderMenu.getMenu().getMenu_id())
+                                        .menu_id(orderMenu.getMenu().getMenuId())
                                         .menu_name(orderMenu.getMenu().getMenu_name())
                                         .cost(orderMenu.getMenu().getCost())
                                         .content(orderMenu.getMenu().getContent())
@@ -90,7 +90,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                 .order_menu(
                         order.getOrderMenuList().stream().map(
                                 orderMenu -> OrderMenuDto.builder()
-                                        .menu_id(orderMenu.getMenu().getMenu_id())
+                                        .menu_id(orderMenu.getMenu().getMenuId())
                                         .menu_name(orderMenu.getMenu().getMenu_name())
                                         .cost(orderMenu.getMenu().getCost())
                                         .content(orderMenu.getMenu().getContent())
