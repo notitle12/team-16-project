@@ -1,4 +1,4 @@
-package com.sparta.ordersystem.order.management.Menu;
+package com.sparta.ordersystem.order.management.Menu.entity;
 
 import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
 import com.sparta.ordersystem.order.management.common.Timestamped;
@@ -35,7 +35,7 @@ public class Menu extends Timestamped{
 
     private Integer cost;
 
-    private String description;
+    private String content;
 
     private boolean isPublic;
 

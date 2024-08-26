@@ -1,11 +1,12 @@
-package com.sparta.ordersystem.order.management.Order;
+package com.sparta.ordersystem.order.management.Order.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.ordersystem.order.management.Menu.QMenu;
+import com.sparta.ordersystem.order.management.Menu.entity.QMenu;
+import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
-import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
+import com.sparta.ordersystem.order.management.Order.entity.QOrder;
 import com.sparta.ordersystem.order.management.OrderMenu.QOrderMenu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +41,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
         List<OrderResponseDto> contents = (List<OrderResponseDto>) results.getResults().stream().map(
                 order -> OrderResponseDto.builder()
                         .order_id(order.getOrderId())
-                        .user_id(order.user_id)
+                        .user_id(order.getUser_id())
                         .state(order.getState())
                         .created_at(order.getCreated_at())
                         .created_by(order.getCreated_by())

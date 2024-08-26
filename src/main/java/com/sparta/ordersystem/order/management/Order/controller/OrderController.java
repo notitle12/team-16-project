@@ -1,5 +1,7 @@
-package com.sparta.ordersystem.order.management.Order;
+package com.sparta.ordersystem.order.management.Order.controller;
 
+import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.service.OrderService;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.dto.UpdateOrderStateRequestDto;
 import lombok.RequiredArgsConstructor;

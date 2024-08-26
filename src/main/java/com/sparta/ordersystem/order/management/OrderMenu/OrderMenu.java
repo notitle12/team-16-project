@@ -1,7 +1,7 @@
 package com.sparta.ordersystem.order.management.OrderMenu;
 
-import com.sparta.ordersystem.order.management.Menu.Menu;
-import com.sparta.ordersystem.order.management.Order.Order;
+import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Order.entity.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

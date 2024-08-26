@@ -1,4 +1,4 @@
-package com.sparta.ordersystem.order.management.Order;
+package com.sparta.ordersystem.order.management.Order.entity;
 
 //주문의 상태
 public enum OrderType {

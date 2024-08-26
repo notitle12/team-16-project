@@ -1,10 +1,14 @@
 package com.sparta.ordersystem.order.management.Order;
 
-import com.sparta.ordersystem.order.management.Menu.Menu;
-import com.sparta.ordersystem.order.management.Menu.MenuRepository;
+import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.entity.OrderType;
+import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
+import com.sparta.ordersystem.order.management.Order.service.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

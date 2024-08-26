@@ -1,9 +1,12 @@
-package com.sparta.ordersystem.order.management.Order;
+package com.sparta.ordersystem.order.management.Order.service;
 
-import com.sparta.ordersystem.order.management.Menu.Menu;
-import com.sparta.ordersystem.order.management.Menu.MenuRepository;
+import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
+import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
