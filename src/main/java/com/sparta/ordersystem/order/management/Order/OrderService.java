@@ -2,9 +2,13 @@ package com.sparta.ordersystem.order.management.Order;
 
 import com.sparta.ordersystem.order.management.Menu.Menu;
 import com.sparta.ordersystem.order.management.Menu.MenuRepository;
+import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -19,6 +23,7 @@ public class OrderService {
      * 주문을 등록해주는 메소드
      * @param requestDto
      */
+    @Transactional
     public void createOrder(createOrderRequestDto requestDto) {
 
         Order order = Order.builder()
@@ -44,6 +49,7 @@ public class OrderService {
      * @param orderType
      * @param orderId
      */
+    @Transactional
     public Order updateOrderState(OrderType orderType, UUID orderId) {
         //존재하는 주문인지 검증
         Order order = orderRepository.findById(orderId)
@@ -53,5 +59,10 @@ public class OrderService {
         order.updateState(orderType);
 
         return orderRepository.save(order);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderResponseDto> getAllOrders(Pageable pageable) {
+        return orderRepository.searchOrders(pageable);
     }
 }

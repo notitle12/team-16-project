@@ -1,7 +1,6 @@
 package com.sparta.ordersystem.order.management.Order;
 
 import com.sparta.ordersystem.order.management.Menu.Menu;
-import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
 import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
@@ -35,7 +34,7 @@ public class Order extends Timestamped {
 
     OrderType state;  //주문 상태
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
     @Builder.Default
     List<OrderMenu> orderMenuList = new ArrayList<>();
 

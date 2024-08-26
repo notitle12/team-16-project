@@ -2,6 +2,8 @@ package com.sparta.ordersystem.order.management.Order;
 
 import com.sparta.ordersystem.order.management.Menu.Menu;
 import com.sparta.ordersystem.order.management.Menu.MenuRepository;
+import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
+import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -107,5 +114,29 @@ class OrderServiceTest {
 
         assertEquals(order.getOrder_id(), newOrder.getOrder_id());
         assertEquals(newOrder.getState(), OrderType.running);
+    }
+
+    @Test
+    @DisplayName("search조회기능 테스트코드")
+    void testSearchOrders(){
+        // Given
+        Pageable pageable = PageRequest.of(0, 10); // 첫 번째 페이지, 페이지당 10개 항목
+        OrderResponseDto orderDto = OrderResponseDto.builder()
+                .order_id(UUID.randomUUID())
+                .user_id(1L)
+                .state(OrderType.create)
+                .order_menu(List.of(new OrderMenuDto(UUID.randomUUID(), "Menu1")))
+                        .build();
+
+        Page<OrderResponseDto> expectedPage = new PageImpl<>(List.of(orderDto), pageable, 1);
+
+        given(orderRepository.searchOrders(pageable)).willReturn(expectedPage);
+
+        // When
+        Page<OrderResponseDto> result = orderService.getAllOrders(pageable);
+
+        // Then
+        assertEquals(expectedPage.getContent().size(), result.getContent().size());
+        assertEquals(expectedPage.getContent().get(0).getOrder_id(), result.getContent().get(0).getOrder_id());
     }
 }
