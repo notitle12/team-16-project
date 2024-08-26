@@ -37,7 +37,8 @@ public class Menu extends Timestamped{
 
     private String content;
 
-    private boolean isPublic;
+    @Builder.Default
+    private boolean is_active = true;
 
     @OneToMany(mappedBy = "menu")
     private List<OrderMenu> orderMenuList = new ArrayList<>();
