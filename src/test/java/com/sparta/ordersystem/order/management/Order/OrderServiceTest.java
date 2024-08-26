@@ -129,7 +129,12 @@ class OrderServiceTest {
                 .order_id(UUID.randomUUID())
                 .user_id(1L)
                 .state(OrderType.create)
-                .order_menu(List.of(new OrderMenuDto(UUID.randomUUID(), "Menu1")))
+                .order_menu(List.of(OrderMenuDto.builder()
+                                .menu_id(UUID.randomUUID())
+                                .menu_name("MENU_TEST")
+                                .content("TEST")
+                                .cost(1000)
+                        .build()))
                         .build();
 
         Page<OrderResponseDto> expectedPage = new PageImpl<>(List.of(orderDto), pageable, 1);
@@ -142,6 +147,7 @@ class OrderServiceTest {
         // Then
         assertEquals(expectedPage.getContent().size(), result.getContent().size());
         assertEquals(expectedPage.getContent().get(0).getOrder_id(), result.getContent().get(0).getOrder_id());
+        assertEquals(expectedPage.getContent().get(0).getOrder_menu().get(0).getMenu_name(), result.getContent().get(0).getOrder_menu().get(0).getMenu_name());
     }
 
     @Test
