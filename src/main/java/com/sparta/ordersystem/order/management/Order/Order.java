@@ -34,7 +34,8 @@ public class Order extends Timestamped {
 
     OrderType state;  //주문 상태
 
-    @Column(nullable = false, columnDefinition = "deleteYn default 'true'")
+    @Column(nullable = false)
+    @Builder.Default
     boolean is_active = true; //주문 취소여부
 
     @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -56,5 +57,9 @@ public class Order extends Timestamped {
 
     public void deleteOrder(){
         this.is_active = false;
+    }
+
+    public boolean getIsActive(){
+        return this.is_active;
     }
 }
