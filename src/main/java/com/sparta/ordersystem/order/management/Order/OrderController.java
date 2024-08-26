@@ -19,6 +19,11 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    /***
+     * 주문 건을 등록
+     * @param requestDto
+     * @return
+     */
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody createOrderRequestDto requestDto) {
         try {
@@ -29,8 +34,14 @@ public class OrderController {
         }
     }
 
+    /***
+     * 주문 상태를 수정하는 함수
+     * @param requestDto
+     * @param order_id
+     * @return
+     */
     @PatchMapping("{order_id}")
-    public ResponseEntity<?> updateOrder(@RequestBody updateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
+    public ResponseEntity<?> updateOrderState(@RequestBody updateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
     {
         try {
             Order newOrder = orderService.updateOrderState(requestDto.getOrderType(),order_id);
@@ -42,6 +53,8 @@ public class OrderController {
     }
 
     /***
+     * 사용자의 전체 주문을 조회
+     * TODO : 추후 사용자 ID를 추가해서 조건문 추가예정
      * 기본 서치기능은 10으로 고정
      * @param pageable
      * @return
@@ -52,4 +65,15 @@ public class OrderController {
         return ResponseEntity.ok().body(orderService.getAllOrders(pageable));
     }
 
+    /***
+     * 주문 삭제 및 취소
+     * 실제 데이터를 삭제하지 않고 숨김처리 softDelete
+     * @param requestDto
+     * @return
+     */
+    @DeleteMapping
+    public ResponseEntity<?> deleteOrder(@RequestBody updateOrderStateRequestDto requestDto) {
+
+        return null;
+    }
 }
