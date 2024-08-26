@@ -139,4 +139,39 @@ class OrderServiceTest {
         assertEquals(expectedPage.getContent().size(), result.getContent().size());
         assertEquals(expectedPage.getContent().get(0).getOrder_id(), result.getContent().get(0).getOrder_id());
     }
+
+    @Test
+    @DisplayName("주문 삭제 시 존재하지 않은 주문 ID로 실패케이스")
+    void testErrorDeleteOrderIdNotExistOrderId(){
+        UUID orderId = UUID.randomUUID();
+
+        given(orderRepository.findById(orderId)).willReturn(Optional.empty());
+
+        Exception thrown = assertThrows(IllegalArgumentException.class,
+            () -> orderService.deleteOrder(orderId)
+        );
+
+        assertEquals("존재하지 않는 주문 ID입니다.",thrown.getMessage());
+    }
+
+    @Test
+    @DisplayName("주문 삭제 성공케이스")
+    void testSuccessDeleteOrder(){
+        UUID orderId = UUID.randomUUID();
+        Order order = Order.builder()
+                .order_id(orderId)
+                .state(OrderType.create)
+                .is_active(false)
+                .build();
+
+        given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
+        given(orderRepository.save(order)).willReturn(order);
+
+        Order deleteOrder = orderService.deleteOrder(orderId);
+
+        verify(orderRepository, times(1)).save(order);
+        assertEquals(order.getOrder_id(), deleteOrder.getOrder_id());
+        assertEquals(order.getState(), OrderType.create);
+        assertEquals(order.getIsActive(), deleteOrder.getIsActive());
+    }
 }
