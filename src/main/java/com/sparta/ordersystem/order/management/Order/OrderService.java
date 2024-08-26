@@ -65,4 +65,15 @@ public class OrderService {
     public Page<OrderResponseDto> getAllOrders(Pageable pageable) {
         return orderRepository.searchOrders(pageable);
     }
+
+    @Transactional
+    public Order deleteOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
+        );
+
+        order.deleteOrder();
+
+        return orderRepository.save(order);
+    }
 }

@@ -66,14 +66,19 @@ public class OrderController {
     }
 
     /***
-     * 주문 삭제 및 취소
+     * 주문 삭제
      * 실제 데이터를 삭제하지 않고 숨김처리 softDelete
-     * @param requestDto
+     * @param order_id
      * @return
      */
-    @DeleteMapping
-    public ResponseEntity<?> deleteOrder(@RequestBody updateOrderStateRequestDto requestDto) {
+    @DeleteMapping("{order_id}")
+    public ResponseEntity<?> deleteOrder(@PathVariable UUID order_id) {
+        try{
+            orderService.deleteOrder(order_id);
+            return ResponseEntity.ok().body(order_id + "의 주문이 삭제되었습니다.");
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
-        return null;
     }
 }
