@@ -4,7 +4,7 @@ import com.sparta.ordersystem.order.management.Menu.Menu;
 import com.sparta.ordersystem.order.management.Menu.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
-import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +44,7 @@ class OrderServiceTest {
         // given
         UUID menuId1 = UUID.randomUUID();
         UUID menuId2 = UUID.randomUUID();
-        createOrderRequestDto requestDto = createOrderRequestDto.builder()
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
                 .user_id(1L)
                 .menu_ids(Arrays.asList(menuId1, menuId2))
                 .build();
@@ -65,7 +65,7 @@ class OrderServiceTest {
     void testSuccessCreateOrder(){
         // given
         UUID menuId1 = UUID.randomUUID();
-        createOrderRequestDto requestDto = createOrderRequestDto.builder()
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
                 .user_id(1L)
                 .menu_ids(Arrays.asList(menuId1))
                 .build();

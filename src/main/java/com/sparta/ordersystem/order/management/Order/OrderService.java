@@ -3,7 +3,7 @@ package com.sparta.ordersystem.order.management.Order;
 import com.sparta.ordersystem.order.management.Menu.Menu;
 import com.sparta.ordersystem.order.management.Menu.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
-import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ public class OrderService {
      * @param requestDto
      */
     @Transactional
-    public void createOrder(createOrderRequestDto requestDto) {
+    public void createOrder(CreateOrderRequestDto requestDto) {
 
         Order order = Order.builder()
                 .user_id(requestDto.getUser_id())

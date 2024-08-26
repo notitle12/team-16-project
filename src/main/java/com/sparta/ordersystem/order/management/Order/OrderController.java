@@ -1,7 +1,7 @@
 package com.sparta.ordersystem.order.management.Order;
 
-import com.sparta.ordersystem.order.management.Order.dto.createOrderRequestDto;
-import com.sparta.ordersystem.order.management.Order.dto.updateOrderStateRequestDto;
+import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.dto.UpdateOrderStateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ public class OrderController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody createOrderRequestDto requestDto) {
+    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
         try {
             orderService.createOrder(requestDto);
             return ResponseEntity.ok().body("Order created successfully");
@@ -41,7 +41,7 @@ public class OrderController {
      * @return
      */
     @PatchMapping("{order_id}")
-    public ResponseEntity<?> updateOrderState(@RequestBody updateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
+    public ResponseEntity<?> updateOrderState(@RequestBody UpdateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
     {
         try {
             Order newOrder = orderService.updateOrderState(requestDto.getOrderType(),order_id);
