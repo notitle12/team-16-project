@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Menu.entity;
 
+import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
@@ -47,5 +48,12 @@ public class Menu extends Timestamped{
 
     public void deleteMenu(){
         this.isActive = false;
+    }
+
+    public void updateMenu(UpdateRequestDto updateRequestDto) {
+        this.menu_name = updateRequestDto.getMenu_name();
+        this.cost = updateRequestDto.getCost();
+        this.content = updateRequestDto.getContent();
+
     }
 }

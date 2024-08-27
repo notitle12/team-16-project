@@ -1,6 +1,8 @@
 package com.sparta.ordersystem.order.management.Menu.controller;
 
 import com.sparta.ordersystem.order.management.Menu.dto.CreateMenuRequestDto;
+import com.sparta.ordersystem.order.management.Menu.dto.MenuResponseDto;
+import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.Menu.service.MenuService;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +36,12 @@ public class MenuController {
     {
         menuService.deleteMenu(menu_id);
         return ResponseEntity.ok().body("메뉴가 정상적으로 삭제되었습니다.");
+    }
+
+    @PutMapping(value = "{menu_id}")
+    public ResponseEntity<?> updateMenu(@RequestBody UpdateRequestDto updateRequestDto, @PathVariable UUID menu_id)
+    {
+        MenuResponseDto dto = menuService.updateMenu(updateRequestDto, menu_id);
+        return ResponseEntity.ok().body("메뉴가 수정되었습니다.");
     }
 }
