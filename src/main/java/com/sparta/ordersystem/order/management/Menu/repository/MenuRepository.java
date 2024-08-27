@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface MenuRepository extends JpaRepository<Menu, UUID> {
 
-    Optional<Menu> findByMenuIdAndAndIsActiveTrue(UUID id);
+    Optional<Menu> findByMenuIdAndIsActiveTrue(UUID id);
     List<Menu> findByStoreIdAndIsActiveTrue(UUID store_id);
 
 }

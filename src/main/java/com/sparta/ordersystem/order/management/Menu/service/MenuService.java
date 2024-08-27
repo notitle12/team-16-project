@@ -21,24 +21,30 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final MessageSource messageSource;
 
+    /***
+     * 메뉴 등록
+     * TODO 08.27 : 가게 ID 존재 검증 추가
+     * @param requestDto
+     * @return
+     */
+    @Transactional
     public Menu createMenu(CreateMenuRequestDto requestDto) {
-        //TODO : 가게 ID 존재 검증 추가
+
         UUID storeId = requestDto.getStore_id();
 
-        Menu menu = Menu.builder()
-                .menu_name(requestDto.getMenu_name())
-                .storeId(requestDto.getStore_id())
-                .cost(requestDto.getCost())
-                .content(requestDto.getContent())
-                .isActive(true)
-                .build();
+        Menu menu = CreateMenuRequestDto.toEntity(requestDto);
 
         return menuRepository.save(menu);
     }
 
+    /***
+     * 등록된 메뉴를 숨김으로 상태 변경
+     * @param menuId
+     */
+    @Transactional
     public void deleteMenu(UUID menuId) {
 
-        Menu menu = menuRepository.findByMenuIdAndAndIsActiveTrue(menuId).orElseThrow(
+        Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
                 () -> new IllegalArgumentException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
                         Locale.getDefault()))
         );
@@ -48,37 +54,49 @@ public class MenuService {
         menuRepository.save(menu);
     }
 
+    /***
+     * 메뉴의 정보를 수정(바꾸려고하는 전체의 정보를 담고있다)
+     * TODO : 1. 가게가 존재하는지 판단 후 가게에 메뉴가 있는 지 판단
+     *
+     * @param updateRequestDto
+     * @param menuId
+     * @return
+     */
     @Transactional
     public MenuResponseDto updateMenu(UpdateRequestDto updateRequestDto,UUID menuId) {
 
-        Menu menu = menuRepository.findByMenuIdAndAndIsActiveTrue(menuId).orElseThrow(
+        Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
                 () -> new IllegalArgumentException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
                         Locale.getDefault())
             )
         );
 
-        //해당 가게에 있는 메뉴인지 판단
         menu.updateMenu(updateRequestDto);
 
         Menu newMenu = menuRepository.save(menu);
-        return MenuResponseDto.builder()
-                .menu_id(newMenu.getMenuId())
-                .menu_name(newMenu.getMenu_name())
-                .store_id(newMenu.getStoreId())
-                .build();
+
+        return convertMenuToResponseDto(newMenu);
     }
 
+    /***
+     * 가게에 있는 모든 메뉴들을 조회
+     * TODO: 가게가 존재하는지 검증 추가
+     * @param storeId
+     * @return
+     */
     public List<MenuResponseDto> getAllMenus(UUID storeId) {
-
-        //TODO: 가게가 존재하는지 검증 추가
 
         List<Menu> menuList = menuRepository.findByStoreIdAndIsActiveTrue(storeId);
 
-        return menuList.stream().map(this::convertMenuToResponseDto
-        ).toList();
+        return menuList.stream().map(this::convertMenuToResponseDto).toList();
 
     }
 
+    /***
+     * Entity to ResponseDto 변환함수
+     * @param menu
+     * @return
+     */
     private MenuResponseDto convertMenuToResponseDto(Menu menu) {
         return MenuResponseDto.builder()
                 .menu_id(menu.getMenuId())
