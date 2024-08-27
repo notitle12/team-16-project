@@ -75,7 +75,7 @@ class OrderServiceTest {
                 .build();
 
         Menu menu = Menu.builder()
-                .menu_id(menuId1)
+                .menuId(menuId1)
                 .build();
 
         given(menuRepository.findById(menuId1)).willReturn(Optional.of(menu));
