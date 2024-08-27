@@ -10,6 +10,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class MenuService {
 
         Menu menu = Menu.builder()
                 .menu_name(requestDto.getMenu_name())
-                .store_id(requestDto.getStore_id())
+                .storeId(requestDto.getStore_id())
                 .cost(requestDto.getCost())
                 .content(requestDto.getContent())
                 .isActive(true)
@@ -63,7 +64,31 @@ public class MenuService {
         return MenuResponseDto.builder()
                 .menu_id(newMenu.getMenuId())
                 .menu_name(newMenu.getMenu_name())
-                .store_id(newMenu.getStore_id())
+                .store_id(newMenu.getStoreId())
+                .build();
+    }
+
+    public List<MenuResponseDto> getAllMenus(UUID storeId) {
+
+        //TODO: 가게가 존재하는지 검증 추가
+
+        List<Menu> menuList = menuRepository.findByStoreIdAndIsActiveTrue(storeId);
+
+        return menuList.stream().map(this::convertMenuToResponseDto
+        ).toList();
+
+    }
+
+    private MenuResponseDto convertMenuToResponseDto(Menu menu) {
+        return MenuResponseDto.builder()
+                .menu_id(menu.getMenuId())
+                .menu_name(menu.getMenu_name())
+                .store_id(menu.getStoreId())
+                .created_at(menu.getCreated_at())
+                .updated_at(menu.getUpdated_at())
+                .content(menu.getContent())
+                .cost(menu.getCost())
+                .is_active(menu.isActive())
                 .build();
     }
 }

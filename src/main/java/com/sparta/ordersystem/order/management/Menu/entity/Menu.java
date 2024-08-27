@@ -30,8 +30,8 @@ public class Menu extends Timestamped{
     )
     @Column(name = "menu_id")
     private UUID menuId;
-
-    private UUID store_id;
+    @Column(name = "store_id")
+    private UUID storeId;
 
     private String menu_name;
 

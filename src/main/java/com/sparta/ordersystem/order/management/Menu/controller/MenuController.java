@@ -44,4 +44,9 @@ public class MenuController {
         MenuResponseDto dto = menuService.updateMenu(updateRequestDto, menu_id);
         return ResponseEntity.ok().body("메뉴가 수정되었습니다.");
     }
+
+    @GetMapping("/stores/{store_id}")
+    public ResponseEntity<?> getAllMenusInStore(@PathVariable UUID store_id){
+        return ResponseEntity.ok().body(menuService.getAllMenus(store_id));
+    }
 }
