@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.User.security;
 
 import com.sparta.ordersystem.order.management.User.config.JwtUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,20 +37,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         //토큰이 존재하고, 그 토큰이 유효한지 확인, 유효하지 않으면 로그를 남기고 필터 체인을 중단
         if (StringUtils.hasText(tokenValue)) {
-
-            if (!jwtUtil.validateToken(tokenValue)) {
-                log.error("Token Error");
-                return;
-            }
-
-            //토큰에서 사용자 정보(이메일 등)를 추출
-            Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
-
-            //사용자 정보를 기반으로 인증을 설정, 문제가 발생하면 예외를 로그로 남기고 필터 체인을 중단
             try {
+                //토큰이 유효한지 확인
+                if (!jwtUtil.validateToken(tokenValue)) {
+                    log.error("Token Error");
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드 설정
+                    return;
+                }
+
+                //토큰에서 사용자 정보(이메일 등)를 추출
+                Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+
+                //사용자 정보를 기반으로 인증을 설정, 문제가 발생하면 예외를 로그로 남기고 필터 체인을 중단
                 setAuthentication(info.getSubject());
+            } catch (ExpiredJwtException e) {
+                // 토큰이 만료된 경우
+                log.error("Expired JWT token");
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드 설정
+                return;
             } catch (Exception e) {
                 log.error(e.getMessage());
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드 설정
                 return;
             }
         }
