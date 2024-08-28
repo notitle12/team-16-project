@@ -72,10 +72,10 @@ public class WebSecurityConfig {
         );
 
         // 폼 로그인 설정: 로그인 페이지와 로그인 요청을 허용
-        http.formLogin((formLogin) ->
-                formLogin
-                        .loginPage("/").permitAll() // 로그인 페이지 접근 허용
-        );
+//        http.formLogin((formLogin) ->
+//                formLogin
+//                        .loginPage("/").permitAll() // 로그인 페이지 접근 허용
+//        );
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);

@@ -1,14 +1,20 @@
 package com.sparta.ordersystem.order.management.User.service;
 
+import com.sparta.ordersystem.order.management.User.dto.UserInfoRequestDto;
+import com.sparta.ordersystem.order.management.User.dto.UserInfoResponseDto;
 import com.sparta.ordersystem.order.management.User.dto.SignUpRequestDto;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import com.sparta.ordersystem.order.management.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,4 +96,25 @@ public class UserService {
         User user = new User(username, password, email, role);
         userRepository.save(user);
     }
+
+    // 현재 로그인한 사용자 정보 조회
+    public UserInfoResponseDto getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return new UserInfoResponseDto(user.getEmail(), user.getUsername(), user.getRole());
+    }
+
+    // 현재 로그인한 사용자 정보 수정
+    public void updateUserByEmail(String email, UserInfoRequestDto updateDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // username과 password만 수정 가능
+        user.setUsername(updateDto.getUsername());
+        user.setPassword(passwordEncoder.encode(updateDto.getPassword()));
+
+        userRepository.save(user);
+    }
+
+
 }
