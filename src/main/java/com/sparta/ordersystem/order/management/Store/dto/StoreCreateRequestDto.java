@@ -6,6 +6,7 @@ import com.sparta.ordersystem.order.management.Region.entity.Region;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,9 +19,9 @@ import java.util.UUID;
 public class StoreCreateRequestDto {
     @NotBlank(message = "storeName cannot be blank")
     private String storeName;
-    @NotBlank(message = "categoryId cannot be blank")
+    @NotNull(message = "categoryId cannot be blank")
     private UUID categoryId;
-    @NotBlank(message = "regionId cannot be blank")
+    @NotNull(message = "regionId cannot be blank")
     private UUID regionId;
 
 
