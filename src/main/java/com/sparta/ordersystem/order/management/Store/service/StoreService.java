@@ -8,6 +8,8 @@ import com.sparta.ordersystem.order.management.Store.dto.StoreCreateRequestDto;
 import com.sparta.ordersystem.order.management.Store.dto.StoreCreateResponseDto;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.Store.repository.StoreRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,7 @@ public class StoreService {
     private final RegionRepository regionRepository;
 
     @Transactional(readOnly = false)
-    public StoreCreateResponseDto createStore(StoreCreateRequestDto requestDto) {
+    public StoreCreateResponseDto createStore(StoreCreateRequestDto requestDto, User user) {
 
         Category category = categoryRepository.findById(requestDto.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
@@ -29,21 +31,22 @@ public class StoreService {
         Region region = regionRepository.findById(requestDto.getRegionId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid region ID"));
 
-        Store store = requestDto.toEntity(category, region);
+        Store store = requestDto.toEntity(category, region, user);
         storeRepository.save(store);
 
-        return convertToStoreCreateResponseDto(store, category, region);
+        return convertToStoreCreateResponseDto(store, category, region, user);
     }
 
 
 
     // Entity -> DTO
-    private StoreCreateResponseDto convertToStoreCreateResponseDto(Store store, Category category, Region region) {
+    private StoreCreateResponseDto convertToStoreCreateResponseDto(Store store, Category category, Region region, User user) {
         return StoreCreateResponseDto.builder()
                 .storeId(store.getStoreId())
                 .storeName(store.getStoreName())
                 .categoryName(category.getCategoryName())
                 .regionName(region.getRegionName())
+                .userName(user.getUsername())
                 .build();
     }
 }
