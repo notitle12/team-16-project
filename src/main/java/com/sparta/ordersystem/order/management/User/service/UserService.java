@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,5 +114,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // 전체 사용자 정보 조회 (관리자와 마스터만 가능)
+    public List<UserInfoResponseDto> getAllUsersInfo() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserInfoResponseDto(user.getEmail(), user.getUsername(), user.getRole()))
+                .collect(Collectors.toList());
+    }
 
 }

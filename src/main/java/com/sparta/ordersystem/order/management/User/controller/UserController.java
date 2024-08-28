@@ -25,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/auth/sign-up")
     public ResponseEntity<String> signUp(@Valid @RequestBody SignUpRequestDto requestDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -57,7 +58,6 @@ public class UserController {
     }
 
     // 현재 로그인한 사용자의 정보 수정
-    // 현재 로그인한 사용자의 정보 수정
     @PutMapping("/users/me")
     public ResponseEntity<String> updateCurrentUserInfo(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -83,6 +83,19 @@ public class UserController {
         }
 
         return ResponseEntity.ok("정보 수정 성공");
+    }
+
+    // 전체 사용자 정보 조회 (관리자와 마스터만 가능)
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsersInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        String userRole = userDetails.getUser().getRole().name();
+
+        if (userRole.equals("MANAGER") || userRole.equals("MASTER")) {
+            List<UserInfoResponseDto> allUsers = userService.getAllUsersInfo();
+            return ResponseEntity.ok(allUsers);
+        } else {
+            return ResponseEntity.status(403).body("접근 권한이 없습니다.");
+        }
     }
 
 }
