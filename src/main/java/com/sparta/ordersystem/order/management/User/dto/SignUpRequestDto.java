@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignupRequestDto {
+public class SignUpRequestDto {
 
     @NotBlank
     private String username;
@@ -19,11 +19,15 @@ public class SignupRequestDto {
     @NotBlank
     private String email;
 
-    private boolean admin = false;
+    private boolean isOwner = false;
 
-    private boolean Ceo = false;
+    private boolean isManager = false;
 
-    private String adminToken = "";
+    private boolean isMaster = false;
 
-    private String ceoToken = "";
+    private String ownerToken = "";
+
+    private String managerToken = "";
+
+    private String masterToken = "";
 }

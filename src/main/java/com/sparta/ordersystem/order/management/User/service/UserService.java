@@ -1,6 +1,6 @@
 package com.sparta.ordersystem.order.management.User.service;
 
-import com.sparta.ordersystem.order.management.User.dto.SignupRequestDto;
+import com.sparta.ordersystem.order.management.User.dto.SignUpRequestDto;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import com.sparta.ordersystem.order.management.User.repository.UserRepository;
@@ -18,14 +18,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ADMIN_TOKEN
-    private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+    // OWNER_TOKEN
+    private final String OWNER_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
-    // CEO+TOKEN
-    private final String CEO_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+    // MANAGER_TOKEN
+    private final String MANAGER_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+
+    //MASTER_TOKEN
+    private final String MASTER_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     // 회원가입
-    public void signup(SignupRequestDto requestDto) {
+    public void signUp(SignUpRequestDto requestDto) {
         String email = requestDto.getEmail();
         String password = passwordEncoder.encode(requestDto.getPassword());
 
@@ -44,26 +47,43 @@ public class UserService {
 
         // 사용자 ROLE 확인
 
-        // Admin
-        UserRoleEnum role = UserRoleEnum.USER;
-        if (requestDto.isAdmin()) {
-            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+        boolean isOwner = false;
+        boolean isManager = false;
+        boolean isMaster = false;
+
+        // 기본 고객
+        UserRoleEnum role = UserRoleEnum.CUSTOMER;
+
+        // 사업주
+        if (requestDto.isOwner()) {
+            if (!OWNER_TOKEN.equals(requestDto.getOwnerToken())) {
+                throw new IllegalArgumentException("사업주 코드가 틀려 등록이 불가능합니다.");
             }
-            role = UserRoleEnum.ADMIN;
+            isOwner = true;
+            role = UserRoleEnum.OWNER;
         }
 
-        // CEO
-        if (requestDto.isCeo()) {  // CEO 역할 추가
-            if (!CEO_TOKEN.equals(requestDto.getCeoToken())) {
-                throw new IllegalArgumentException("CEO 암호가 틀려 등록이 불가능합니다.");
+        // 관리자
+        if (requestDto.isManager()) {
+            if (!MANAGER_TOKEN.equals(requestDto.getManagerToken())) {
+                throw new IllegalArgumentException("관리자 코드가 틀려 등록이 불가능합니다.");
             }
-            role = UserRoleEnum.CEO;
+            isManager = true;
+            role = UserRoleEnum.MANAGER;
         }
 
-        // ADMIN과 CEO 모두 체크된 경우 에러 처리
-        if (requestDto.isAdmin() && requestDto.isCeo()) {
-            throw new IllegalArgumentException("ADMIN과 CEO 권한은 동시에 부여될 수 없습니다.");
+        // 마스터
+        if (requestDto.isMaster()) {  // CEO 역할 추가
+            if (!MASTER_TOKEN.equals(requestDto.getMasterToken())) {
+                throw new IllegalArgumentException("마스터 코드가 틀려 등록이 불가능합니다.");
+            }
+            isMaster = true;
+            role = UserRoleEnum.MASTER;
+        }
+
+        // 여러 권한이 동시에 설정된 경우 에러 처리
+        if ((isOwner && isManager) || (isOwner && isMaster) || (isManager && isMaster)) {
+            throw new IllegalArgumentException("권한은 동시에 부여될 수 없습니다.");
         }
 
         // 사용자 등록
