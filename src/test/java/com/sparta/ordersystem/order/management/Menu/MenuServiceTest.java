@@ -42,7 +42,7 @@ public class MenuServiceTest {
         UUID MenuId = UUID.randomUUID();
         String expectedMessage = "존재하지 않는 메뉴 ID";
 
-        given(menuRepository.findByMenuIdAndAndIsActiveTrue(MenuId)).willReturn(Optional.empty());
+        given(menuRepository.findByMenuIdAndIsActiveTrue(MenuId)).willReturn(Optional.empty());
         given(messageSource.getMessage("not.found.menu.id", new UUID[]{MenuId}, "존재하지 않는 메뉴 ID", Locale.getDefault()))
                 .willReturn(expectedMessage);
 
@@ -68,7 +68,7 @@ public class MenuServiceTest {
                 .content("test1")
                 .build();
 
-        given(menuRepository.findByMenuIdAndAndIsActiveTrue(menuId)).willReturn(Optional.of(menu));
+        given(menuRepository.findByMenuIdAndIsActiveTrue(menuId)).willReturn(Optional.of(menu));
         given(menuRepository.save(menu)).willReturn(menu);
 
         menuService.deleteMenu(menuId);
@@ -97,7 +97,7 @@ public class MenuServiceTest {
 
         String expectedMessage = "존재하지 않는 메뉴 ID";
 
-        given(menuRepository.findByMenuIdAndAndIsActiveTrue(MenuId)).willReturn(Optional.empty());
+        given(menuRepository.findByMenuIdAndIsActiveTrue(MenuId)).willReturn(Optional.empty());
         given(messageSource.getMessage("not.found.menu.id",new UUID[]{MenuId},"존재하지 않는 메뉴 ID",
                 Locale.getDefault())).willReturn(expectedMessage);
 
@@ -126,7 +126,7 @@ public class MenuServiceTest {
                 .store_id(UUID.randomUUID())
                 .build();
 
-        given(menuRepository.findByMenuIdAndAndIsActiveTrue(menuId)).willReturn(Optional.of(menu));
+        given(menuRepository.findByMenuIdAndIsActiveTrue(menuId)).willReturn(Optional.of(menu));
 
         given(menuRepository.save(menu)).willReturn(menu);
 

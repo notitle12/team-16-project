@@ -91,7 +91,7 @@ class OrderServiceTest {
     {
         UUID orderId = UUID.randomUUID();
 
-        given(orderRepository.findById(orderId)).willReturn(Optional.empty());
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> orderService.updateOrderState(OrderType.running, orderId)
@@ -110,7 +110,7 @@ class OrderServiceTest {
                 .state(OrderType.create)
                 .build();
 
-        given(orderRepository.findById(order.getOrderId())).willReturn(Optional.of(order));
+        given(orderRepository.findByOrderIdAndIsActiveTrue(order.getOrderId())).willReturn(Optional.of(order));
 
         given(orderRepository.save(order)).willReturn(order);
 
@@ -155,7 +155,7 @@ class OrderServiceTest {
     void testErrorDeleteOrderIdNotExistOrderId(){
         UUID orderId = UUID.randomUUID();
 
-        given(orderRepository.findById(orderId)).willReturn(Optional.empty());
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
         Exception thrown = assertThrows(IllegalArgumentException.class,
             () -> orderService.deleteOrder(orderId)
@@ -174,7 +174,7 @@ class OrderServiceTest {
                 .isActive(false)
                 .build();
 
-        given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.of(order));
         given(orderRepository.save(order)).willReturn(order);
 
         Order deleteOrder = orderService.deleteOrder(orderId);
