@@ -41,4 +41,7 @@ public class Payment extends Timestamped {
      */
     private Integer total_price;
 
+    public void updateStatus(PaymentStatus newStatus){
+        this.status = newStatus;
+    }
 }

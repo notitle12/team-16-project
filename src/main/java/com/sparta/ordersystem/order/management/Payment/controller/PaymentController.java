@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.Payment.controller;
 
 import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
+import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDto;
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,12 @@ public class PaymentController {
     public ResponseEntity<?> getPaymentsInDetail(@PathVariable UUID payment_id) {
 
         return ResponseEntity.ok().body(paymentService.getPaymentsInDetail(payment_id));
+    }
+
+    @PatchMapping("{payment_id}")
+    public ResponseEntity<?> updatePaymentStatus(@PathVariable UUID payment_id,
+                                                 UpdateStatusRequestDto requestDto){
+        paymentService.updatePaymentStatus(payment_id,requestDto);
+        return ResponseEntity.ok().body("결제 상태가 "+ requestDto.getStatus() + "로 수정되었습니다.");
     }
 }

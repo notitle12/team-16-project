@@ -4,6 +4,7 @@ import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.dto.PaymentResponseDto;
+import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDto;
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,19 @@ public class PaymentService {
                 .orderId(payment.getOrder().getOrderId())
                 .totalPrice(payment.getTotal_price())
                 .build();
+    }
+
+    @Transactional
+    public void updatePaymentStatus(UUID paymentId, UpdateStatusRequestDto requestDto) {
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(
+                () -> new IllegalArgumentException(
+                        messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
+                                "존재하지 않는 결제 ID입니다.",
+                                Locale.getDefault()))
+        );
+
+        payment.updateStatus(requestDto.getStatus());
+
+        paymentRepository.save(payment);
     }
 }
