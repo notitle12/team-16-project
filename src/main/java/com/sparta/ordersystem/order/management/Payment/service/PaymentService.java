@@ -72,7 +72,7 @@ public class PaymentService {
                                 Locale.getDefault()))
         );
 
-        payment.updateStatus(requestDto.getStatus());
+        payment.updateStatus(requestDto.getPaymentStatus());
 
         paymentRepository.save(payment);
     }

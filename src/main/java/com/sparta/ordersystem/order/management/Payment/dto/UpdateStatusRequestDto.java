@@ -5,5 +5,5 @@ import lombok.Getter;
 
 @Getter
 public class UpdateStatusRequestDto {
-    private PaymentStatus status;
+    private PaymentStatus paymentStatus;
 }

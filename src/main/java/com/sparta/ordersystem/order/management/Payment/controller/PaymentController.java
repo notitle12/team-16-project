@@ -5,6 +5,8 @@ import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDt
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
     private final PaymentService paymentService;
 
     /***
@@ -37,8 +40,8 @@ public class PaymentController {
 
     @PatchMapping("{payment_id}")
     public ResponseEntity<?> updatePaymentStatus(@PathVariable UUID payment_id,
-                                                 UpdateStatusRequestDto requestDto){
+                                                 @RequestBody UpdateStatusRequestDto requestDto){
         paymentService.updatePaymentStatus(payment_id,requestDto);
-        return ResponseEntity.ok().body("결제 상태가 "+ requestDto.getStatus() + "로 수정되었습니다.");
+        return ResponseEntity.ok().body("결제 상태가 "+ requestDto.getPaymentStatus() + "로 수정되었습니다.");
     }
 }
