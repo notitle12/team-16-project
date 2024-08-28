@@ -21,7 +21,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        setFilterProcessesUrl("/api/user/login");
+        setFilterProcessesUrl("/api/v1/auth/login");
     }
 
     @Override
@@ -54,11 +54,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // 생성된 JWT 토큰을 응답 헤더에 추가
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+
+        // 로그인 성공 시 로그를 출력
+        log.info("로그인 성공: 이메일 = {}, 역할 = {}", email, role);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         // 인증에 실패한 경우 HTTP 상태 코드를 401(Unauthorized)로 설정
         response.setStatus(401);
+
+        // 실패 로그를 추가
+        log.warn("로그인 실패");
     }
 }
