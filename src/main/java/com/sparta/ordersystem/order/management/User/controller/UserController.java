@@ -52,7 +52,7 @@ public class UserController {
     public ResponseEntity<UserInfoResponseDto> getCurrentUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         String email = userDetails.getUser().getEmail();
 
-        UserInfoResponseDto userInfo = userService.getUserByEmail(email);
+        UserInfoResponseDto userInfo = userService.getUserInfo(email);
         return ResponseEntity.ok(userInfo);
     }
 
@@ -77,7 +77,7 @@ public class UserController {
         String email = userDetails.getUser().getEmail();
 
         try {
-            userService.updateUserByEmail(email, updateDto);
+            userService.updateUserInfo(email, updateDto);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

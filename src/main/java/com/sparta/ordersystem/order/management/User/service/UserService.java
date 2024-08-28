@@ -7,14 +7,10 @@ import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import com.sparta.ordersystem.order.management.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,14 +94,14 @@ public class UserService {
     }
 
     // 현재 로그인한 사용자 정보 조회
-    public UserInfoResponseDto getUserByEmail(String email) {
+    public UserInfoResponseDto getUserInfo(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return new UserInfoResponseDto(user.getEmail(), user.getUsername(), user.getRole());
     }
 
     // 현재 로그인한 사용자 정보 수정
-    public void updateUserByEmail(String email, UserInfoRequestDto updateDto) {
+    public void updateUserInfo(String email, UserInfoRequestDto updateDto) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
