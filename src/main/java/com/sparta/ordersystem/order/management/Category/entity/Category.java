@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="q_category")
+@Table(name="p_category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Category {
