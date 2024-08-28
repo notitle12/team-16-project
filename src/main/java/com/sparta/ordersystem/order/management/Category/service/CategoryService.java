@@ -6,6 +6,9 @@ import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseD
 import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +41,14 @@ public class CategoryService {
         return convertToCategoryGetResponseDto(category);
     }
 
-    public List<CategoryGetResponseDto> getAllCategory() {
-        return categoryRepository.findAll().stream()
+    public List<CategoryGetResponseDto> getAllCategory(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page,size, sort);
+
+
+        return categoryRepository.findAll(pageable).stream()
                 .map(this::convertToCategoryGetResponseDto)
                 .toList();
     }

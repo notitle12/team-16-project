@@ -49,7 +49,10 @@ public class CategoryController {
     }
 
     @GetMapping("/category")
-    public List<CategoryGetResponseDto> getAllCategories(){
-        return categoryService.getAllCategory();
+    public List<CategoryGetResponseDto> getAllCategories(@RequestParam("page") int page,
+                                                         @RequestParam("size") int size,
+                                                         @RequestParam("sortBy") String sortBy,
+                                                         @RequestParam("isAsc") boolean isAsc){
+        return categoryService.getAllCategory(page-1, size, sortBy, isAsc);
     }
 }
