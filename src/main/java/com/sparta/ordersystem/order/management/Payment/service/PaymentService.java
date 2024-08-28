@@ -2,7 +2,7 @@ package com.sparta.ordersystem.order.management.Payment.service;
 
 import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
-import com.sparta.ordersystem.order.management.Payment.dto.createPaymentRequestDto;
+import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
@@ -23,9 +23,9 @@ public class PaymentService {
     private final MessageSource messageSource;
 
     @Transactional(readOnly = true)
-    public void cretePayment(createPaymentRequestDto requestDto, User user) {
+    public void cretePayment(CreatePaymentRequestDto requestDto) {
 
-        Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(
+        Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrderId()).orElseThrow(
                 () -> new IllegalArgumentException(
                         messageSource.getMessage("not.found.order.id",new UUID[]{requestDto.getOrderId()},
                                 "존재하지 않는 주문 ID",
@@ -39,7 +39,7 @@ public class PaymentService {
     }
 
 
-    private Payment convertDtoToEntity(createPaymentRequestDto requestDto,Order order){
+    private Payment convertDtoToEntity(CreatePaymentRequestDto requestDto, Order order){
         return Payment.builder()
                 .method(requestDto.getPaymentMethod())
                 .status(requestDto.getPaymentStatus())

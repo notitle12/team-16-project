@@ -36,6 +36,9 @@ public class Payment extends Timestamped {
     @Column(name = "payment_method")
     private PaymentMethod method;
 
+    /***
+     * 결제 내역에 얼마를 결제했는지 정보를 저장하면 좋을거 같아서 추가
+     */
     private Integer total_price;
 
 }

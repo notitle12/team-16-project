@@ -1,6 +1,6 @@
 package com.sparta.ordersystem.order.management.Payment.controller;
 
-import com.sparta.ordersystem.order.management.Payment.dto.createPaymentRequestDto;
+import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +19,8 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<?> createPayment(@RequestBody createPaymentRequestDto requestDto,
-                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        paymentService.cretePayment(requestDto,userDetails.getUser());
+    public ResponseEntity<?> createPayment(@RequestBody CreatePaymentRequestDto requestDto) {
+        paymentService.cretePayment(requestDto);
         return ResponseEntity.ok().body("결제가 저장되었습니다.");
     }
 }
