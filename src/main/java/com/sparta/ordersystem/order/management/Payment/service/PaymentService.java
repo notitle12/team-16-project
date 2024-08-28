@@ -22,7 +22,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final MessageSource messageSource;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void cretePayment(CreatePaymentRequestDto requestDto) {
 
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrderId()).orElseThrow(
@@ -37,4 +37,28 @@ public class PaymentService {
 
     }
 
+    @Transactional(readOnly = true)
+    public PaymentResponseDto getPaymentsInDetail(UUID paymentId) {
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(
+                () -> new IllegalArgumentException(
+                        messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
+                                "존재하지 않는 결제 ID입니다.",
+                                Locale.getDefault()))
+        );
+
+        return convertPaymentToResponseDto(payment);
+    }
+
+    private PaymentResponseDto convertPaymentToResponseDto(Payment payment) {
+        return PaymentResponseDto.builder()
+                .paymentId(payment.getPaymentId())
+                .paymentStatus(payment.getStatus())
+                .paymentMethod(payment.getMethod())
+                .createdAt(payment.getCreated_at())
+                .updatedAt(payment.getUpdated_at())
+                .deletedAt(payment.getDeleted_at())
+                .orderId(payment.getOrder().getOrderId())
+                .totalPrice(payment.getTotal_price())
+                .build();
+    }
 }
