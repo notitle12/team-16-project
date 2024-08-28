@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.OrderMenu;
 
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Table(name = "p_order_menu")
-public class OrderMenu {
+public class OrderMenu extends Timestamped {
 
     @Id
     @GeneratedValue(generator ="UUID")

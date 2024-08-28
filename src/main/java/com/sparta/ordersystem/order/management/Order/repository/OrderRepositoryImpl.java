@@ -22,7 +22,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<OrderResponseDto> searchOrders(Pageable pageable) {
+    public Page<OrderResponseDto> searchOrders(Pageable pageable,Long user_id) {
         QOrder qOrder = QOrder.order;
         QMenu qMenu = QMenu.menu;
         QOrderMenu qOrderMenu = QOrderMenu.orderMenu;
@@ -30,6 +30,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
         QueryResults<Order> results = queryFactory.selectFrom(qOrder)
                 .leftJoin(qOrder.orderMenuList,qOrderMenu).fetchJoin()
                 .leftJoin(qOrderMenu.menu,qMenu).fetchJoin()
+                .where(qOrder.user.id.eq(user_id))
                 .orderBy(
                         qOrder.created_at.desc(),
                         qOrder.updated_at.desc()
@@ -38,27 +39,8 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                 .limit(pageable.getPageSize())
                 .fetchResults();
 
-        List<OrderResponseDto> contents = (List<OrderResponseDto>) results.getResults().stream().map(
-                order -> OrderResponseDto.builder()
-                        .order_id(order.getOrderId())
-                        .user_id(order.getUser_id())
-                        .state(order.getState())
-                        .created_at(order.getCreated_at())
-                        .created_by(order.getCreated_by())
-                        .updated_at(order.getUpdated_at())
-                        .updated_by(order.getUpdated_by())
-                        .deleted_at(order.getDeleted_at())
-                        .deleted_by(order.getDeleted_by())
-                        .order_menu(order.getOrderMenuList().stream().map(
-                                orderMenu -> OrderMenuDto.builder()
-                                        .menu_id(orderMenu.getMenu().getMenuId())
-                                        .menu_name(orderMenu.getMenu().getMenu_name())
-                                        .cost(orderMenu.getMenu().getCost())
-                                        .content(orderMenu.getMenu().getContent())
-                                        .build()
-                        ).toList())
-                        .build()
-        ).toList();
+        List<OrderResponseDto> contents = results.getResults().stream()
+                .map(this::convertOrderToOrderResponseDto).toList();
 
         long total = results.getTotal();
 
@@ -66,7 +48,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
     }
 
     @Override
-    public OrderResponseDto getOrderById(UUID orderId) {
+    public OrderResponseDto getOrderById(UUID orderId,Long user_id) {
         QOrder qOrder = QOrder.order;
         QMenu qMenu = QMenu.menu;
         QOrderMenu qOrderMenu = QOrderMenu.orderMenu;
@@ -77,9 +59,13 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                 .where(qOrder.orderId.eq(orderId))
                 .fetchOne();
 
+        return convertOrderToOrderResponseDto(order);
+    }
+
+    private OrderResponseDto convertOrderToOrderResponseDto(Order order) {
         return OrderResponseDto.builder()
                 .order_id(order.getOrderId())
-                .user_id(order.getUser_id())
+                .user_id(order.getUser().getId())
                 .state(order.getState())
                 .created_at(order.getCreated_at())
                 .created_by(order.getCreated_by())
@@ -99,5 +85,4 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                 )
                 .build();
     }
-
 }

@@ -4,11 +4,13 @@ import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.dto.UpdateOrderStateRequestDto;
+import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,9 +29,11 @@ public class OrderController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto) {
+    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequestDto requestDto,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
         try {
-            orderService.createOrder(requestDto);
+            orderService.createOrder(requestDto,userDetails.getUser());
             return ResponseEntity.ok().body("Order created successfully");
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -62,9 +66,10 @@ public class OrderController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<?> getAllOrders(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<?> getAllOrders(@PageableDefault(size = 10) Pageable pageable,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        return ResponseEntity.ok().body(orderService.getAllOrders(pageable));
+        return ResponseEntity.ok().body(orderService.getAllOrders(pageable,userDetails.getUser()));
     }
 
     /***
@@ -90,8 +95,9 @@ public class OrderController {
      * @return
      */
     @GetMapping("{order_id}")
-    public ResponseEntity<?> getOrderById(@PathVariable UUID order_id) {
-        return ResponseEntity.ok().body(orderService.getOrderById(order_id));
+    public ResponseEntity<?> getOrderById(@PathVariable UUID order_id,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok().body(orderService.getOrderById(order_id,userDetails.getUser()));
 
     }
 }

@@ -7,6 +7,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface OrderRepsoitoryCustom {
-    Page<OrderResponseDto> searchOrders(Pageable pageable);
-    OrderResponseDto getOrderById(UUID orderId);
+    Page<OrderResponseDto> searchOrders(Pageable pageable,Long user_id);
+    OrderResponseDto getOrderById(UUID orderId,Long user_id);
 }

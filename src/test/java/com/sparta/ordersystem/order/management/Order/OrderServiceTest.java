@@ -9,6 +9,7 @@ import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
+import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,8 @@ class OrderServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private MenuRepository menuRepository;
+    @Mock
+    private UserDetailsImpl userDetails;
 
     @InjectMocks
     OrderService orderService;
@@ -49,7 +52,6 @@ class OrderServiceTest {
         UUID menuId1 = UUID.randomUUID();
         UUID menuId2 = UUID.randomUUID();
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
-                .user_id(1L)
                 .menu_ids(Arrays.asList(menuId1, menuId2))
                 .build();
 
@@ -57,7 +59,7 @@ class OrderServiceTest {
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> orderService.createOrder(requestDto)
+                () -> orderService.createOrder(requestDto,userDetails.getUser())
         );
 
         // then
@@ -70,7 +72,6 @@ class OrderServiceTest {
         // given
         UUID menuId1 = UUID.randomUUID();
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
-                .user_id(1L)
                 .menu_ids(Arrays.asList(menuId1))
                 .build();
 
@@ -80,7 +81,7 @@ class OrderServiceTest {
 
         given(menuRepository.findById(menuId1)).willReturn(Optional.of(menu));
 
-        orderService.createOrder(requestDto);
+        orderService.createOrder(requestDto,userDetails.getUser());
         // then
         verify(orderRepository, times(1)).save(any(Order.class));
     }
@@ -139,10 +140,10 @@ class OrderServiceTest {
 
         Page<OrderResponseDto> expectedPage = new PageImpl<>(List.of(orderDto), pageable, 1);
 
-        given(orderRepository.searchOrders(pageable)).willReturn(expectedPage);
+        given(orderRepository.searchOrders(pageable,userDetails.getUser().getId())).willReturn(expectedPage);
 
         // When
-        Page<OrderResponseDto> result = orderService.getAllOrders(pageable);
+        Page<OrderResponseDto> result = orderService.getAllOrders(pageable,userDetails.getUser());
 
         // Then
         assertEquals(expectedPage.getContent().size(), result.getContent().size());

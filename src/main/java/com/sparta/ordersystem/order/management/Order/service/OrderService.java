@@ -7,6 +7,7 @@ import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -31,10 +32,10 @@ public class OrderService {
      * @param requestDto
      */
     @Transactional
-    public void createOrder(CreateOrderRequestDto requestDto) {
+    public void createOrder(CreateOrderRequestDto requestDto, User user) {
 
         Order order = Order.builder()
-                .user_id(requestDto.getUser_id())
+                .user(user)
                 .state(OrderType.create)
                 .build();
 
@@ -74,8 +75,8 @@ public class OrderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public Page<OrderResponseDto> getAllOrders(Pageable pageable) {
-        return orderRepository.searchOrders(pageable);
+    public Page<OrderResponseDto> getAllOrders(Pageable pageable,User user) {
+        return orderRepository.searchOrders(pageable,user.getId());
     }
 
     /***
@@ -101,7 +102,7 @@ public class OrderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public OrderResponseDto getOrderById(UUID orderId) {
+    public OrderResponseDto getOrderById(UUID orderId,User user) {
 
         //주문 아이디 존재 검증
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
@@ -111,7 +112,7 @@ public class OrderService {
                 )
         );
 
-        return orderRepository.getOrderById(orderId);
+        return orderRepository.getOrderById(orderId, user.getId());
 
     }
 }

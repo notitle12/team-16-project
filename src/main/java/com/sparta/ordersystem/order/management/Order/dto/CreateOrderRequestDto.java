@@ -13,6 +13,5 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class CreateOrderRequestDto {
-    Long user_id;
     List<UUID> menu_ids;
 }
