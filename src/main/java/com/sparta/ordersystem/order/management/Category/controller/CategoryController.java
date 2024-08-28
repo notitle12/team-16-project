@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.Category.controller;
 
 import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateRequestDto;
 import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateResponseDto;
+import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseDto;
 import com.sparta.ordersystem.order.management.Category.service.CategoryService;
 
 import jakarta.validation.Valid;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,4 +43,13 @@ public class CategoryController {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/category/{category_id}")
+    public CategoryGetResponseDto getCategory(@PathVariable UUID category_id){
+        return categoryService.getCategory(category_id);
+    }
+
+    @GetMapping("/category")
+    public List<CategoryGetResponseDto> getAllCategories(){
+        return categoryService.getAllCategory();
+    }
 }
