@@ -5,10 +5,12 @@ import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateRespon
 import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseDto;
 import com.sparta.ordersystem.order.management.Category.service.CategoryService;
 
+import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +28,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category")
-    public CategoryCreateResponseDto createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto){
-        return categoryService.createCategory(categoryCreateRequestDto);
+    public CategoryCreateResponseDto createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return categoryService.createCategory(categoryCreateRequestDto, userDetails.getUser());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

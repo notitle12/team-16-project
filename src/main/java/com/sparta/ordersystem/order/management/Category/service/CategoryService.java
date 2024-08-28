@@ -5,10 +5,13 @@ import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateRespon
 import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseDto;
 import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Category.repository.CategoryRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +25,17 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = false)
-    public CategoryCreateResponseDto createCategory(CategoryCreateRequestDto categoryCreateRequestDto) {
+    public CategoryCreateResponseDto createCategory(CategoryCreateRequestDto categoryCreateRequestDto, User user) {
+
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+            throw new AccessDeniedException("관리자만 카테고리 생성 가능합니다.");
+        }
+
 
         if (categoryRepository.existsByCategoryName(categoryCreateRequestDto.getCategoryName())) {
-            throw new IllegalArgumentException("Category name already exists");
+            throw new IllegalArgumentException("카테고리 이름이 중복입니다.");
         }
 
 
