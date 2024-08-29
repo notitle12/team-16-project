@@ -39,6 +39,7 @@ public class Category {
     public Category(String categoryName) {
         this.categoryId = UUID.randomUUID();  // UUID 자동 생성
         this.categoryName = categoryName;
+        this.isActive = true;
     }
 
     public void update(CategoryUpdateRequestDto requestDto) {
