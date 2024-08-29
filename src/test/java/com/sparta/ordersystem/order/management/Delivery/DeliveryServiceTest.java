@@ -145,4 +145,70 @@ public class DeliveryServiceTest {
 
         assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("배송지 조회 - 성공케이스")
+    void testSuccessGetDeliveryByOrderId(){
+        UUID deliveryId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        Order order = Order.builder()
+                .orderId(orderId)
+                .build();
+
+        Delivery delivery = Delivery.builder()
+                .order(order)
+                .deliveryId(deliveryId)
+                .address("test")
+                .request_note("testNote")
+                .isActive(true)
+                .build();
+
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.of(order));
+
+        given(deliveryRepository.findByOrderAndIsActiveTrue(order)).willReturn(Optional.of(delivery));
+
+        DeliveryResponseDto result = deliveryService.getDeliveryByOrderId(orderId);
+
+        assertEquals(delivery.getDeliveryId(),result.getDelivery_id());
+        assertEquals(delivery.getAddress(),result.getAddress());
+        assertEquals(delivery.getRequest_note(),result.getRequset_note());
+
+    }
+
+    @Test
+    @DisplayName("배송지 삭제 - 존재하지 않는 주문 ID")
+    void testErrorGetDeliveryByOrderIdNotExistedOrderId(){
+        UUID orderId = UUID.randomUUID();
+
+        Order order = Order.builder()
+                .orderId(orderId)
+                .build();
+
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> deliveryService.getDeliveryByOrderId(orderId));
+
+        assertEquals("존재하지 않는 주문 ID입니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("배송지 삭제 - 존재하지 않는 배달 ID")
+    void testErrorGetDeliveryByOrderIdNotExistedDeliveryId(){
+        UUID orderId = UUID.randomUUID();
+
+        Order order = Order.builder()
+                .orderId(orderId)
+                .build();
+
+        given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.of(order));
+
+        given(deliveryRepository.findByOrderAndIsActiveTrue(order)).willReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> deliveryService.getDeliveryByOrderId(orderId));
+
+        assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
+    }
 }
