@@ -54,6 +54,11 @@ public class CategoryController {
     }
 
 
+    @DeleteMapping("/category/{category_id}")
+    public CategoryDeleteResponseDto deleteCategory(@PathVariable UUID category_id,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return categoryService.deleteCategory(category_id, userDetails.getUser());
+    }
 
 
 

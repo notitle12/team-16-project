@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,10 @@ public class Category {
     @Column(name="category_name")
     private String categoryName;
 
+    @ColumnDefault("true")
+    @Column(name="is_active")
+    boolean isActive;
+
     @OneToMany(mappedBy = "category")
     private List<Store> stores = new ArrayList<>();
 
@@ -38,5 +43,9 @@ public class Category {
 
     public void update(CategoryUpdateRequestDto requestDto) {
         this.categoryName = requestDto.getCategoryName();
+    }
+
+    public void softDeleted(){
+        this.isActive = false;
     }
 }

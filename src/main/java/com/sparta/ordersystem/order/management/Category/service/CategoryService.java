@@ -71,7 +71,7 @@ public class CategoryService {
         UserRoleEnum userRoleEnum = user.getRole();
 
         if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
-            throw new AccessDeniedException("관리자만 카테고리 생성 가능합니다.");
+            throw new AccessDeniedException("관리자만 카테고리 수정 가능합니다.");
         }
 
 
@@ -89,7 +89,23 @@ public class CategoryService {
     }
 
 
+    @Transactional(readOnly = false)
+    public CategoryDeleteResponseDto deleteCategory(UUID categoryId, User user) {
 
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+            throw new AccessDeniedException("관리자만 카테고리 삭제 가능합니다.");
+        }
+
+
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                ()->  new NullPointerException("해당 카테고리를 찾을 수 없습니다"));
+
+        category.softDeleted();
+
+        return convertToCategoryDeleteResponseDto(category);
+    }
 
 
     private CategoryCreateResponseDto convertToCategoryCreateResponseDto(Category category) {
@@ -113,4 +129,11 @@ public class CategoryService {
                 .build();
     }
 
+    private CategoryDeleteResponseDto convertToCategoryDeleteResponseDto(Category category) {
+        return CategoryDeleteResponseDto.builder()
+                .categoryId(category.getCategoryId())
+                .categoryName(category.getCategoryName())
+                .isActive(category.isActive())
+                .build();
+    }
 }
