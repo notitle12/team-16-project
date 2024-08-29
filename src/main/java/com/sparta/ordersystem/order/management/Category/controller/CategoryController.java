@@ -32,18 +32,6 @@ public class CategoryController {
         return categoryService.createCategory(categoryCreateRequestDto, userDetails.getUser());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
 
     @GetMapping("/category/{category_id}")
     public CategoryGetResponseDto getCategory(@PathVariable UUID category_id){
@@ -57,4 +45,27 @@ public class CategoryController {
                                                          @RequestParam("isAsc") boolean isAsc){
         return categoryService.getAllCategory(page-1, size, sortBy, isAsc);
     }
+
+
+
+
+
+
+
+
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
 }
