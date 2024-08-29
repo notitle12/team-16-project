@@ -63,4 +63,8 @@ public class Store {
     public void updateRegion(Region region) {
         this.region = region;
     }
+
+    public void softDeleted(){
+        this.isActive = false;
+    }
 }

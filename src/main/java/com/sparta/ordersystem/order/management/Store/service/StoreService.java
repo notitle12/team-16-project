@@ -138,6 +138,26 @@ public class StoreService {
         return convertToStoreUpdateResponseDto(store);
     }
 
+
+    @Transactional(readOnly = false)
+    public StoreDeleteResponseDto deleteService(UUID storeId, User user) {
+
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if(isMember(userRoleEnum)){
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+        }
+
+        Store store = storeRepository.findById(storeId).orElseThrow(
+                ()-> new IllegalArgumentException("잘못된 가게 id 입니다.")
+        );
+
+        store.softDeleted();
+
+        return convertToStoreDeleteResponseDto(store);
+    }
+
+
     private boolean isMember(UserRoleEnum userRoleEnum) {
         return (userRoleEnum != UserRoleEnum.OWNER && userRoleEnum != UserRoleEnum.MANAGER && userRoleEnum != UserRoleEnum.MANAGER);
     }
@@ -180,5 +200,12 @@ public class StoreService {
     }
 
 
+    private StoreDeleteResponseDto convertToStoreDeleteResponseDto(Store store){
+        return StoreDeleteResponseDto.builder()
+                .storeId(store.getStoreId())
+                .storeName(store.getStoreName())
+                .isActive(store.isActive())
+                .build();
+    }
 
 }

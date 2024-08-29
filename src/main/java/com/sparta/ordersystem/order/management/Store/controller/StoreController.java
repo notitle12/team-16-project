@@ -80,4 +80,10 @@ public class StoreController {
                                               @AuthenticationPrincipal UserDetailsImpl userDetails){
         return storeService.updateService(storeId, storeUpdateRequestDto, userDetails.getUser() );
     }
+
+    @DeleteMapping("/store/{store_id}")
+    public StoreDeleteResponseDto deleteStore(@PathVariable(name="store_id") UUID storeId,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return storeService.deleteService(storeId, userDetails.getUser());
+    }
 }
