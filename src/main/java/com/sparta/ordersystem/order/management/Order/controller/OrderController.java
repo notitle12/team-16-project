@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Order.controller;
 
+import com.sparta.ordersystem.order.management.Order.dto.OrderSearchDto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
@@ -47,12 +48,13 @@ public class OrderController {
      * @return
      */
     @PatchMapping("{order_id}")
-    public ResponseEntity<?> updateOrderState(@RequestBody UpdateOrderStateRequestDto requestDto, @PathVariable UUID order_id)
+    public ResponseEntity<?> updateOrderState(@RequestBody UpdateOrderStateRequestDto requestDto, @PathVariable UUID order_id
+    ,@AuthenticationPrincipal UserDetailsImpl userDetails)
     {
         try {
-            Order newOrder = orderService.updateOrderState(requestDto.getOrderType(),order_id);
+            Order newOrder = orderService.updateOrderState(requestDto.getOrderStatus(),order_id,userDetails.getUser());
             return ResponseEntity.ok().body("Order updated successfully with id " + newOrder.getOrderId()
-            + " state " +newOrder.getState());
+            + " state " +newOrder.getOrderStatus());
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -60,16 +62,16 @@ public class OrderController {
 
     /***
      * 사용자의 전체 주문을 조회
-     * TODO : 추후 사용자 ID를 추가해서 조건문 추가예정
      * 기본 서치기능은 10으로 고정
      * @param pageable
      * @return
      */
     @GetMapping
     public ResponseEntity<?> getAllOrders(@PageableDefault(size = 10) Pageable pageable,
-                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @RequestBody OrderSearchDto searchDto) {
 
-        return ResponseEntity.ok().body(orderService.getAllOrders(pageable,userDetails.getUser()));
+        return ResponseEntity.ok().body(orderService.getAllOrders(searchDto,pageable,userDetails.getUser()));
     }
 
     /***

@@ -1,6 +1,6 @@
 package com.sparta.ordersystem.order.management.Order.dto;
 
-import com.sparta.ordersystem.order.management.Order.entity.OrderType;
+import com.sparta.ordersystem.order.management.Order.entity.OrderStatus;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -15,7 +15,7 @@ public class OrderResponseDto extends BaseTimeStamped{
 
     Long user_id;
 
-    OrderType state;  //주문 상태
+    OrderStatus state;  //주문 상태
 
     List<OrderMenuDto> order_menu = new ArrayList<>();
 

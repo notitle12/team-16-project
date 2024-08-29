@@ -36,7 +36,11 @@ public class Order extends Timestamped {
     @JoinColumn(name = "user_id")
     User user;
 
-    OrderType state;  //주문 상태
+    @Enumerated(EnumType.STRING)
+    OrderStatus orderStatus;  //주문 상태
+
+    @Enumerated(EnumType.STRING)
+    OrderType orderType;//
 
     @Column(nullable = false, name = "is_active")
     @Builder.Default
@@ -54,9 +58,9 @@ public class Order extends Timestamped {
         orderMenuList.add(orderMenu);
     }
 
-    public void updateState(OrderType newState)
+    public void updateState(OrderStatus newState)
     {
-        this.state = newState;
+        this.orderStatus = newState;
     }
 
     public void deleteOrder(){
