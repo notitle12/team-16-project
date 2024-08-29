@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SoftDelete;
 
 import java.util.UUID;
 
@@ -24,6 +26,10 @@ public class Store {
     @Column(name="store_name", nullable = false)
     private String storeName;
 
+    @Column(name="is_active")
+    @ColumnDefault("true")
+    private boolean isActive;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -33,7 +39,7 @@ public class Store {
     private Region region;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id", nullable = false)
+    @JoinColumn(name="user_id", nullable = false)
     private User user;
 
     @Builder
@@ -43,6 +49,7 @@ public class Store {
         this.category = category;
         this.region = region;
         this.user = user;
+        this.isActive = true;
     }
 
 }
