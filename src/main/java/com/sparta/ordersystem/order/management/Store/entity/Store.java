@@ -52,4 +52,15 @@ public class Store {
         this.isActive = true;
     }
 
+    public void updateStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
+
+    public void updateRegion(Region region) {
+        this.region = region;
+    }
 }

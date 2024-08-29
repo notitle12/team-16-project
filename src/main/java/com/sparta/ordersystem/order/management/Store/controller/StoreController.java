@@ -1,8 +1,6 @@
 package com.sparta.ordersystem.order.management.Store.controller;
 
-import com.sparta.ordersystem.order.management.Store.dto.StoreCreateRequestDto;
-import com.sparta.ordersystem.order.management.Store.dto.StoreCreateResponseDto;
-import com.sparta.ordersystem.order.management.Store.dto.StoreGetResponseDto;
+import com.sparta.ordersystem.order.management.Store.dto.*;
 import com.sparta.ordersystem.order.management.Store.service.StoreService;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
@@ -73,5 +71,13 @@ public class StoreController {
 
     private boolean isManagerAndMaster(UserRoleEnum userRoleEnum){
         return (userRoleEnum == UserRoleEnum.MANAGER || userRoleEnum == UserRoleEnum.MASTER);
+    }
+
+
+    @PatchMapping("/store/{store_id}")
+    public StoreUpdateResponseDto updateStore(@PathVariable(name="store_id") UUID storeId,
+                                              @RequestBody StoreUpdateRequestDto storeUpdateRequestDto,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return storeService.updateService(storeId, storeUpdateRequestDto, userDetails.getUser() );
     }
 }
