@@ -38,4 +38,8 @@ public class Region {
         this.regionName = regionName;
         this.isActive = true;
     }
+
+    public void updateRegionName(String regionName){
+        this.regionName = regionName;
+    }
 }

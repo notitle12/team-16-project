@@ -1,8 +1,6 @@
 package com.sparta.ordersystem.order.management.Region.service;
 
-import com.sparta.ordersystem.order.management.Region.dto.RegionCreateRequestDto;
-import com.sparta.ordersystem.order.management.Region.dto.RegionCreateResponseDto;
-import com.sparta.ordersystem.order.management.Region.dto.RegionGetResponseDto;
+import com.sparta.ordersystem.order.management.Region.dto.*;
 import com.sparta.ordersystem.order.management.Region.entity.Region;
 import com.sparta.ordersystem.order.management.Region.repository.RegionRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +32,8 @@ public class RegionService {
 
     }
 
+
+    @Transactional(readOnly = true)
     public RegionGetResponseDto getRegion(UUID region_id) {
         Region region = regionRepository.findById(region_id).orElseThrow(
                 ()-> new IllegalArgumentException("Region not found")
@@ -42,6 +42,8 @@ public class RegionService {
         return convertToRegionGetResponseDto(region);
     }
 
+
+    @Transactional(readOnly = true)
     public List<RegionGetResponseDto> getAllRegion(int page,
                                                    int size,
                                                    String sortBy,
@@ -57,8 +59,21 @@ public class RegionService {
                 .toList();
     }
 
+    @Transactional(readOnly = false)
+    public RegionUpdateResponseDto updateRegion(UUID regionId, RegionUpdateRequestDto regionUpdateRequestDto) {
 
+        if(regionRepository.existsByRegionName(regionUpdateRequestDto.getRegionName())) {
+           throw new IllegalArgumentException("지역명은 이미 존재합니다.");
+        }
 
+        Region region = regionRepository.findById(regionId).orElseThrow(
+                ()-> new IllegalArgumentException("Region not found")
+        );
+
+        region.updateRegionName(regionUpdateRequestDto.getRegionName());
+
+        return convertToRegionUpdateResponseDto(region);
+    }
 
 
 
@@ -78,5 +93,10 @@ public class RegionService {
     }
 
 
-
+    private RegionUpdateResponseDto convertToRegionUpdateResponseDto(Region region) {
+        return RegionUpdateResponseDto.builder()
+                .regionId(region.getRegionId())
+                .regionName(region.getRegionName())
+                .build();
+    }
 }

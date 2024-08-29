@@ -1,9 +1,7 @@
 package com.sparta.ordersystem.order.management.Region.controller;
 
 
-import com.sparta.ordersystem.order.management.Region.dto.RegionCreateRequestDto;
-import com.sparta.ordersystem.order.management.Region.dto.RegionCreateResponseDto;
-import com.sparta.ordersystem.order.management.Region.dto.RegionGetResponseDto;
+import com.sparta.ordersystem.order.management.Region.dto.*;
 import com.sparta.ordersystem.order.management.Region.service.RegionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +42,11 @@ public class RegionController {
     ){
         return regionService.getAllRegion(page-1,size,sortBy, isAsc);
 
+    }
+
+    @PatchMapping("/region/{region_id}")
+    public RegionUpdateResponseDto updateRegion(@PathVariable UUID region_id, @RequestBody @Valid RegionUpdateRequestDto regionUpdateRequestDto){
+        return regionService.updateRegion(region_id, regionUpdateRequestDto);
     }
 
 
