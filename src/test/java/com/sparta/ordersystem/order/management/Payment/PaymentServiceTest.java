@@ -10,6 +10,7 @@ import com.sparta.ordersystem.order.management.Payment.entity.PaymentMethod;
 import com.sparta.ordersystem.order.management.Payment.entity.PaymentStatus;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
+import com.sparta.ordersystem.order.management.User.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -149,6 +151,45 @@ class PaymentServiceTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED)));
+
+        assertEquals(expectedMessage, exception.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("결제 내역들 조회 - 성공케이스")
+    void testSuccessGetAllPayments(){
+
+        User user = new User();
+        user.setId(1L);
+
+        List<PaymentResponseDto> paymentList
+                = List.of(
+                        PaymentResponseDto.builder().build(),
+                PaymentResponseDto.builder().build()
+        );
+
+        given(paymentRepository.getAllPaymentsByUserId(user.getId())).willReturn(paymentList);
+
+        List<PaymentResponseDto> result = paymentService.getAllPaymentsByUserId(user);
+
+        assertEquals(paymentList.size(), result.size());
+    }
+
+    @Test
+    @DisplayName("결제 내역들 조회 - 존재하지 않는 결제 내역들")
+    void testErrorGetAllPaymentsNotExistedPayments(){
+        User user = new User();
+        user.setId(1L);
+        String expectedMessage = "결제한 내역이 없습니다.";
+
+        given(paymentRepository.getAllPaymentsByUserId(user.getId())).willReturn(List.of());
+        given(messageSource.getMessage("not.found.payments.list",null,
+                "결제한 내역이 없습니다.",
+                Locale.getDefault())).willReturn(expectedMessage);
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> paymentService.getAllPaymentsByUserId(user));
 
         assertEquals(expectedMessage, exception.getMessage());
 
