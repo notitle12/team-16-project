@@ -76,6 +76,18 @@ public class RegionService {
     }
 
 
+    @Transactional(readOnly = false)
+    public RegionDeleteResponseDto deleteRegion(UUID regionId) {
+        Region region = regionRepository.findById(regionId).orElseThrow(
+                ()-> new IllegalArgumentException("Region not found")
+        );
+
+        region.softDeleted();
+
+        return convertToRegionDeleteResponseDto(region);
+
+    }
+
 
 
     private RegionCreateResponseDto convertToRegionCreateResponseDto(Region region) {
@@ -99,4 +111,14 @@ public class RegionService {
                 .regionName(region.getRegionName())
                 .build();
     }
+
+
+    private RegionDeleteResponseDto convertToRegionDeleteResponseDto(Region region) {
+        return RegionDeleteResponseDto.builder()
+                .regionId(region.getRegionId())
+                .regionName(region.getRegionName())
+                .isActive(region.isActive())
+                .build();
+    }
+
 }

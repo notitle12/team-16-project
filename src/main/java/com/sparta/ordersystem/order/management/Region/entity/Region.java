@@ -42,4 +42,8 @@ public class Region {
     public void updateRegionName(String regionName){
         this.regionName = regionName;
     }
+
+    public void softDeleted(){
+        this.isActive = false;
+    }
 }
