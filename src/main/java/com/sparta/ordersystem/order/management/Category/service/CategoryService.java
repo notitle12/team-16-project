@@ -58,7 +58,7 @@ public class CategoryService {
         Pageable pageable = PageRequest.of(page,size, sort);
 
 
-        return categoryRepository.findAll(pageable).stream()
+        return categoryRepository.findAllByIsActiveTrue(pageable).stream()
                 .map(this::convertToCategoryGetResponseDto)
                 .toList();
     }
