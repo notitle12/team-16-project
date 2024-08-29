@@ -1,6 +1,8 @@
 package com.sparta.ordersystem.order.management.Delivery;
 
 import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryRequestDto;
+import com.sparta.ordersystem.order.management.Delivery.dto.DeliveryResponseDto;
+import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.entity.Delivery;
 import com.sparta.ordersystem.order.management.Delivery.repository.DeliveryRepository;
 import com.sparta.ordersystem.order.management.Delivery.service.DeliveryService;
@@ -67,5 +69,46 @@ public class DeliveryServiceTest {
         assertEquals("존재하지 않는 주문 ID입니다.", exception.getMessage());
     }
 
+
+    @Test
+    @DisplayName("배송지 정보 변경 - 성공케이스")
+    void testSuccessUpdateDelivery(){
+        UUID deliveryId = UUID.randomUUID();
+
+        UpdateDeliveryRequestDto dto = new UpdateDeliveryRequestDto(
+                "test","test1"
+        );
+
+        Delivery delivery = Delivery
+                .builder()
+                .deliveryId(deliveryId)
+                .order(new Order())
+                .build();
+
+        given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.of(delivery));
+        given(deliveryRepository.save(delivery)).willReturn(delivery);
+
+        DeliveryResponseDto result = deliveryService.updateDelivery(deliveryId,dto);
+
+        assertEquals(dto.getAddress(),result.getAddress());
+        assertEquals(dto.getRequest_note(),result.getRequset_note());
+    }
+
+    @Test
+    @DisplayName("배송지 정보 변경 - 존재하지 않는 배달 ID")
+    void testErrorUpdateDeliveryNotExistedDeliveryId(){
+        UUID deliveryId = UUID.randomUUID();
+
+        UpdateDeliveryRequestDto dto = new UpdateDeliveryRequestDto(
+                "test","test1"
+        );
+
+        given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> deliveryService.updateDelivery(deliveryId,dto));
+
+        assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
+    }
 
 }
