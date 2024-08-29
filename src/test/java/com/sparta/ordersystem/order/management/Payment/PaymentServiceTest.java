@@ -4,6 +4,7 @@ import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.dto.PaymentResponseDto;
+import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDto;
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.entity.PaymentMethod;
 import com.sparta.ordersystem.order.management.Payment.entity.PaymentStatus;
@@ -114,5 +115,42 @@ class PaymentServiceTest {
                 () -> paymentService.getPaymentsInDetail(paymentId));
 
         assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("결제 상태 변경 - 성공케이스")
+    void testSuccessUpdatePaymentStatus(){
+        UUID paymentId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        Payment payment = Payment.builder()
+                .paymentId(paymentId)
+                .status(PaymentStatus.REFUNDED)
+                .build();
+
+        given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
+
+        paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED));
+
+        verify(paymentRepository).save(payment);
+
+    }
+
+    @Test
+    @DisplayName("결제 상태 변경 - 존재하지않는 결제 ID")
+    void testErrorUpdatePaymentStatusNotExistedPaymentId(){
+        UUID paymentId = UUID.randomUUID();
+        String expectedMessage = "존재하지 않는 결제 ID입니다.";
+
+        given(paymentRepository.findById(paymentId)).willReturn(Optional.empty());
+        given(messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
+                "존재하지 않는 결제 ID입니다.",
+                Locale.getDefault())).willReturn(expectedMessage);
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED)));
+
+        assertEquals(expectedMessage, exception.getMessage());
+
     }
 }
