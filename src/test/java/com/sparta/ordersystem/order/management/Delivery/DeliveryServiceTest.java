@@ -111,4 +111,38 @@ public class DeliveryServiceTest {
         assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
     }
 
+
+    @Test
+    @DisplayName("배송지 삭제 - 성공케이스")
+    void testSuccessDeleteDelivery(){
+        UUID deliveryId = UUID.randomUUID();
+        Long user_id = 1L;
+
+        Delivery delivery = Delivery.builder()
+                .order(new Order())
+                .deliveryId(deliveryId)
+                .isActive(true)
+                .build();
+
+        given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.of(delivery));
+        given(deliveryRepository.save(delivery)).willReturn(delivery);
+
+        DeliveryResponseDto result = deliveryService.deleteDelivery(deliveryId,user_id);
+
+        assertEquals(false , result.getIsActive());
+    }
+
+    @Test
+    @DisplayName("배송지 삭제 - 존재하지 않는 배달 ID")
+    void testErrorDeleteDeliveryNotExistedDeliveryId(){
+        UUID deliveryId = UUID.randomUUID();
+        Long user_id = 1L;
+
+        given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> deliveryService.deleteDelivery(deliveryId,user_id));
+
+        assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
+    }
 }

@@ -17,4 +17,8 @@ public class DeliveryResponseDto {
     boolean is_active;
     LocalDateTime created_at;
     LocalDateTime updated_at;
+
+    public boolean getIsActive(){
+        return this.is_active;
+    }
 }
