@@ -1,7 +1,6 @@
 package com.sparta.ordersystem.order.management.Category.entity;
 
 
-import com.sparta.ordersystem.order.management.Category.dto.CategoryUpdateRequestDto;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -42,8 +41,8 @@ public class Category {
         this.isActive = true;
     }
 
-    public void update(CategoryUpdateRequestDto requestDto) {
-        this.categoryName = requestDto.getCategoryName();
+    public void updateCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public void softDeleted(){

@@ -83,7 +83,7 @@ public class CategoryService {
                 ()->  new NullPointerException("해당 카테고리를 찾을 수 없습니다"));
 
 
-        category.update(categoryUpdateRequestDto);
+        category.updateCategoryName(categoryUpdateRequestDto.getCategoryName());
 
         return convertToCategoryUpdateResponseDto(category);
     }
