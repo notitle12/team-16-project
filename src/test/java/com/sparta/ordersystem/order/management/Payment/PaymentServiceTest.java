@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.Payment;
 
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.dto.PaymentResponseDto;
@@ -8,6 +9,7 @@ import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDt
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.entity.PaymentMethod;
 import com.sparta.ordersystem.order.management.Payment.entity.PaymentStatus;
+import com.sparta.ordersystem.order.management.Payment.exception.PaymentNotFoundException;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
 import com.sparta.ordersystem.order.management.User.entity.User;
@@ -78,7 +80,7 @@ class PaymentServiceTest {
                 .willReturn("존재하지 않는 주문 ID");
 
         // When
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> paymentService.cretePayment(dto));
+        Exception exception = assertThrows(OrderNotFoundException.class, () -> paymentService.cretePayment(dto));
         // Then
         assertEquals("존재하지 않는 주문 ID", exception.getMessage());
     }
@@ -113,7 +115,7 @@ class PaymentServiceTest {
                 "존재하지 않는 결제 ID입니다.",
                 Locale.getDefault())).willReturn(expectedMessage);
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(PaymentNotFoundException.class,
                 () -> paymentService.getPaymentsInDetail(paymentId));
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -149,7 +151,7 @@ class PaymentServiceTest {
                 "존재하지 않는 결제 ID입니다.",
                 Locale.getDefault())).willReturn(expectedMessage);
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(PaymentNotFoundException.class,
                 () -> paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED)));
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -188,7 +190,7 @@ class PaymentServiceTest {
                 "결제한 내역이 없습니다.",
                 Locale.getDefault())).willReturn(expectedMessage);
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(PaymentNotFoundException.class,
                 () -> paymentService.getAllPaymentsByUserId(user));
 
         assertEquals(expectedMessage, exception.getMessage());

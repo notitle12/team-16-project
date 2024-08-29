@@ -4,6 +4,7 @@ import com.sparta.ordersystem.order.management.Menu.dto.CreateMenuRequestDto;
 import com.sparta.ordersystem.order.management.Menu.dto.MenuResponseDto;
 import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -45,7 +46,7 @@ public class MenuService {
     public void deleteMenu(UUID menuId) {
 
         Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
-                () -> new IllegalArgumentException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
+                () -> new MenuNotFoundException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
                         Locale.getDefault()))
         );
 
@@ -66,7 +67,7 @@ public class MenuService {
     public MenuResponseDto updateMenu(UpdateRequestDto updateRequestDto,UUID menuId) {
 
         Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
-                () -> new IllegalArgumentException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
+                () -> new MenuNotFoundException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
                         Locale.getDefault())
             )
         );

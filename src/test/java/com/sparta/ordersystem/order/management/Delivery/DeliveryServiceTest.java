@@ -4,9 +4,11 @@ import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryReques
 import com.sparta.ordersystem.order.management.Delivery.dto.DeliveryResponseDto;
 import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.entity.Delivery;
+import com.sparta.ordersystem.order.management.Delivery.exception.DeliveryNotFoundException;
 import com.sparta.ordersystem.order.management.Delivery.repository.DeliveryRepository;
 import com.sparta.ordersystem.order.management.Delivery.service.DeliveryService;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,7 +65,7 @@ public class DeliveryServiceTest {
 
         given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(OrderNotFoundException.class,
                 () -> deliveryService.createDelivery(requestDto));
 
         assertEquals("존재하지 않는 주문 ID입니다.", exception.getMessage());
@@ -105,7 +107,7 @@ public class DeliveryServiceTest {
 
         given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(DeliveryNotFoundException.class,
                 () -> deliveryService.updateDelivery(deliveryId,dto));
 
         assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
@@ -140,7 +142,7 @@ public class DeliveryServiceTest {
 
         given(deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(DeliveryNotFoundException.class,
                 () -> deliveryService.deleteDelivery(deliveryId,user_id));
 
         assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());
@@ -187,7 +189,7 @@ public class DeliveryServiceTest {
 
         given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(OrderNotFoundException.class,
                 () -> deliveryService.getDeliveryByOrderId(orderId));
 
         assertEquals("존재하지 않는 주문 ID입니다.", exception.getMessage());
@@ -206,7 +208,7 @@ public class DeliveryServiceTest {
 
         given(deliveryRepository.findByOrderAndIsActiveTrue(order)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(DeliveryNotFoundException.class,
                 () -> deliveryService.getDeliveryByOrderId(orderId));
 
         assertEquals("존재하지 않는 배달 ID입니다.", exception.getMessage());

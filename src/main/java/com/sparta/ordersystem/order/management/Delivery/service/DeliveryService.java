@@ -4,8 +4,10 @@ import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryReques
 import com.sparta.ordersystem.order.management.Delivery.dto.DeliveryResponseDto;
 import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.entity.Delivery;
+import com.sparta.ordersystem.order.management.Delivery.exception.DeliveryNotFoundException;
 import com.sparta.ordersystem.order.management.Delivery.repository.DeliveryRepository;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class DeliveryService {
 
         //존재하는 주문ID인지 검증
        Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrder_id()).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
+                () -> new OrderNotFoundException("존재하지 않는 주문 ID입니다.")
         );
 
         Delivery delivery = requestDto.toEntity(true,order);
@@ -38,7 +40,7 @@ public class DeliveryService {
     public DeliveryResponseDto updateDelivery(UUID deliveryId, UpdateDeliveryRequestDto updateDeliveryRequestDto) {
 
         Delivery delivery = deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+                () -> new DeliveryNotFoundException("존재하지 않는 배달 ID입니다.")
         );
 
         delivery.updateDelivery(updateDeliveryRequestDto);
@@ -53,7 +55,7 @@ public class DeliveryService {
     public DeliveryResponseDto deleteDelivery(UUID deliveryId,Long user_id) {
 
         Delivery delivery = deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+                () -> new DeliveryNotFoundException("존재하지 않는 배달 ID입니다.")
         );
 
         delivery.deleteDelivery(user_id);
@@ -72,11 +74,11 @@ public class DeliveryService {
     public DeliveryResponseDto getDeliveryByOrderId(UUID orderId) {
         //주문 ID 존재하는 지 검증
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
+                () -> new OrderNotFoundException("존재하지 않는 주문 ID입니다.")
         );
 
         Delivery delivery = deliveryRepository.findByOrderAndIsActiveTrue(order).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+                () -> new DeliveryNotFoundException("존재하지 않는 배달 ID입니다.")
         );
 
         return convertDeliveryToDeliveryResponseDto(delivery);

@@ -3,6 +3,7 @@ package com.sparta.ordersystem.order.management.Menu;
 import com.sparta.ordersystem.order.management.Menu.dto.MenuResponseDto;
 import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
 import com.sparta.ordersystem.order.management.Menu.service.MenuService;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +48,7 @@ public class MenuServiceTest {
                 .willReturn(expectedMessage);
 
         //when
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(MenuNotFoundException.class,
                 () -> menuService.deleteMenu(MenuId));
 
         //then
@@ -101,7 +102,7 @@ public class MenuServiceTest {
         given(messageSource.getMessage("not.found.menu.id",new UUID[]{MenuId},"존재하지 않는 메뉴 ID",
                 Locale.getDefault())).willReturn(expectedMessage);
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(MenuNotFoundException.class,
         () -> menuService.updateMenu(dto,MenuId));
 
         assertEquals(exception.getMessage(),expectedMessage);

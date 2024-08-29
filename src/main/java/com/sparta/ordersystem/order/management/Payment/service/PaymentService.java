@@ -1,11 +1,13 @@
 package com.sparta.ordersystem.order.management.Payment.service;
 
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Payment.dto.CreatePaymentRequestDto;
 import com.sparta.ordersystem.order.management.Payment.dto.PaymentResponseDto;
 import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDto;
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
+import com.sparta.ordersystem.order.management.Payment.exception.PaymentNotFoundException;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class PaymentService {
     public void cretePayment(CreatePaymentRequestDto requestDto) {
 
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrderId()).orElseThrow(
-                () -> new IllegalArgumentException(
+                () -> new OrderNotFoundException(
                         messageSource.getMessage("not.found.order.id",new UUID[]{requestDto.getOrderId()},
                                 "존재하지 않는 주문 ID",
                         Locale.getDefault())));
@@ -43,7 +45,7 @@ public class PaymentService {
     @Transactional(readOnly = true)
     public PaymentResponseDto getPaymentsInDetail(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(
-                () -> new IllegalArgumentException(
+                () -> new PaymentNotFoundException(
                         messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
                                 "존재하지 않는 결제 ID입니다.",
                                 Locale.getDefault()))
@@ -68,7 +70,7 @@ public class PaymentService {
     @Transactional
     public void updatePaymentStatus(UUID paymentId, UpdateStatusRequestDto requestDto) {
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(
-                () -> new IllegalArgumentException(
+                () -> new PaymentNotFoundException(
                         messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
                                 "존재하지 않는 결제 ID입니다.",
                                 Locale.getDefault()))
@@ -90,7 +92,7 @@ public class PaymentService {
         List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getId());
 
         if(responseDtoList.isEmpty() || responseDtoList.size() == 0){
-            throw new IllegalArgumentException( messageSource.getMessage("not.found.payments.list",null,
+            throw new PaymentNotFoundException( messageSource.getMessage("not.found.payments.list",null,
                     "결제한 내역이 없습니다.",
                     Locale.getDefault()));
         }
