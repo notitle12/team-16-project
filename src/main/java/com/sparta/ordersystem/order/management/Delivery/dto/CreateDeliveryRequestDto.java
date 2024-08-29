@@ -2,11 +2,13 @@ package com.sparta.ordersystem.order.management.Delivery.dto;
 
 import com.sparta.ordersystem.order.management.Delivery.entity.Delivery;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.UUID;
 
 @Getter
+@Builder
 public class CreateDeliveryRequestDto {
 
     UUID order_id;
