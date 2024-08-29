@@ -1,8 +1,6 @@
 package com.sparta.ordersystem.order.management.Category.service;
 
-import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateRequestDto;
-import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateResponseDto;
-import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseDto;
+import com.sparta.ordersystem.order.management.Category.dto.*;
 import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Category.repository.CategoryRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
@@ -43,6 +41,7 @@ public class CategoryService {
         return convertToCategoryCreateResponseDto(category);
     }
 
+    @Transactional(readOnly = true)
     public CategoryGetResponseDto getCategory(UUID categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(
                 () -> new IllegalArgumentException("Illegal CategoryId")
@@ -51,6 +50,7 @@ public class CategoryService {
         return convertToCategoryGetResponseDto(category);
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryGetResponseDto> getAllCategory(int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
@@ -62,6 +62,34 @@ public class CategoryService {
                 .map(this::convertToCategoryGetResponseDto)
                 .toList();
     }
+
+    @Transactional(readOnly = false)
+    public CategoryUpdateResponseDto updateCategory(UUID categoryId,
+                                                    CategoryUpdateRequestDto categoryUpdateRequestDto,
+                                                    User user) {
+
+        UserRoleEnum userRoleEnum = user.getRole();
+
+        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+            throw new AccessDeniedException("관리자만 카테고리 생성 가능합니다.");
+        }
+
+
+        if(categoryRepository.existsByCategoryName(categoryUpdateRequestDto.getCategoryName())){
+            throw new IllegalArgumentException("카테고리 이름이 중복입니다.");
+        }
+
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                ()->  new NullPointerException("해당 카테고리를 찾을 수 없습니다"));
+
+
+        category.update(categoryUpdateRequestDto);
+
+        return convertToCategoryUpdateResponseDto(category);
+    }
+
+
+
 
 
     private CategoryCreateResponseDto convertToCategoryCreateResponseDto(Category category) {
@@ -78,6 +106,11 @@ public class CategoryService {
                 .build();
     }
 
-
+    private CategoryUpdateResponseDto convertToCategoryUpdateResponseDto(Category category) {
+        return CategoryUpdateResponseDto.builder()
+                .categoryId(category.getCategoryId())
+                .categoryName(category.getCategoryName())
+                .build();
+    }
 
 }

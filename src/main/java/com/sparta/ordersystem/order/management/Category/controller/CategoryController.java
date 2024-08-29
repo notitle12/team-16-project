@@ -1,8 +1,6 @@
 package com.sparta.ordersystem.order.management.Category.controller;
 
-import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateRequestDto;
-import com.sparta.ordersystem.order.management.Category.dto.CategoryCreateResponseDto;
-import com.sparta.ordersystem.order.management.Category.dto.CategoryGetResponseDto;
+import com.sparta.ordersystem.order.management.Category.dto.*;
 import com.sparta.ordersystem.order.management.Category.service.CategoryService;
 
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
@@ -28,7 +26,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category")
-    public CategoryCreateResponseDto createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public CategoryCreateResponseDto createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
         return categoryService.createCategory(categoryCreateRequestDto, userDetails.getUser());
     }
 
@@ -47,6 +46,12 @@ public class CategoryController {
     }
 
 
+    @PatchMapping("/category/{category_id}")
+    public CategoryUpdateResponseDto updateCategory(@PathVariable UUID category_id,
+                                                    @RequestBody @Valid CategoryUpdateRequestDto categoryUpdateRequestDto,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return categoryService.updateCategory(category_id,categoryUpdateRequestDto, userDetails.getUser());
+    }
 
 
 

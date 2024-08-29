@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.Category.entity;
 
 
+import com.sparta.ordersystem.order.management.Category.dto.CategoryUpdateRequestDto;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,5 +34,9 @@ public class Category {
     public Category(String categoryName) {
         this.categoryId = UUID.randomUUID();  // UUID 자동 생성
         this.categoryName = categoryName;
+    }
+
+    public void update(CategoryUpdateRequestDto requestDto) {
+        this.categoryName = requestDto.getCategoryName();
     }
 }
