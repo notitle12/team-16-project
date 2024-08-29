@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,10 @@ public class Region {
     @Column(name="region_name")
     private String regionName;
 
+    @Column(name="is_active")
+    @ColumnDefault("true")
+    private boolean isActive;
+
     @OneToMany(mappedBy = "region")
     private List<Store> stores  = new ArrayList<>();
 
@@ -31,5 +36,6 @@ public class Region {
     public Region(String regionName) {
         this.regionId = UUID.randomUUID();  // UUID 자동 생성
         this.regionName = regionName;
+        this.isActive = true;
     }
 }
