@@ -3,9 +3,12 @@ package com.sparta.ordersystem.order.management.Delivery.controller;
 import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.service.DeliveryService;
+import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -31,4 +34,15 @@ public class DeliveryController {
         return ResponseEntity.ok().body(deliveryService.updateDelivery(delivery_id,updateDeliveryRequestDto));
     }
 
+    /***
+     * soft delete로 활성화상태만 변경하는 함수 true -> false
+     * @param delivery_id
+     * @return
+     */
+    @DeleteMapping("{delivery_id}")
+    public ResponseEntity<?> deleteDelivery(@PathVariable UUID delivery_id,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails)
+    {
+        return ResponseEntity.ok().body(deliveryService.deleteDelivery(delivery_id,userDetails.getUser().getId()));
+    }
 }

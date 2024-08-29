@@ -49,6 +49,21 @@ public class DeliveryService {
 
     }
 
+    @Transactional
+    public DeliveryResponseDto deleteDelivery(UUID deliveryId,Long user_id) {
+
+        Delivery delivery = deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+        );
+
+        delivery.deleteDelivery(user_id);
+
+        Delivery newDelivery = deliveryRepository.save(delivery);
+
+        return convertDeliveryToDeliveryResponseDto(newDelivery);
+    }
+
+    //Entity -> Dto
     private DeliveryResponseDto convertDeliveryToDeliveryResponseDto(Delivery delivery) {
         return DeliveryResponseDto.builder()
                 .delivery_id(delivery.getDeliveryId())
@@ -57,6 +72,7 @@ public class DeliveryService {
                 .order_id(delivery.getOrder().getOrderId())
                 .created_at(delivery.getCreated_at())
                 .updated_at(delivery.getUpdated_at())
+                .is_active(delivery.getIsActive())
                 .build();
     }
 }

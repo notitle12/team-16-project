@@ -14,6 +14,7 @@ public class DeliveryResponseDto {
     String address;
     String requset_note;
     UUID order_id;
+    boolean is_active;
     LocalDateTime created_at;
     LocalDateTime updated_at;
 }

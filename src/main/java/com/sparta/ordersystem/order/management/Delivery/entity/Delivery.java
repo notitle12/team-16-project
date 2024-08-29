@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -47,5 +48,15 @@ public class Delivery extends Timestamped {
     public void updateDelivery(UpdateDeliveryRequestDto dto){
         this.request_note = dto.getRequest_note();
         this.address = dto.getAddress();
+    }
+
+    public void deleteDelivery(Long user_id) {
+        this.isActive = false;
+        this.deleted_at = LocalDateTime.now();
+        this.deleted_by = user_id;
+    }
+
+    public boolean getIsActive(){
+        return this.isActive;
     }
 }

@@ -33,8 +33,8 @@ public abstract class Timestamped {
     private Long updated_by;
 
     @Column
-    private LocalDateTime deleted_at;
+    protected LocalDateTime deleted_at;
 
     @Column
-    private Long deleted_by;
+    protected Long deleted_by;
 }
