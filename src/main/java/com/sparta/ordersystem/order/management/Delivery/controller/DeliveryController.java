@@ -45,4 +45,14 @@ public class DeliveryController {
     {
         return ResponseEntity.ok().body(deliveryService.deleteDelivery(delivery_id,userDetails.getUser().getId()));
     }
+
+    /***
+     * 주문에 저장된 배송지를 조회
+     * @param order_id
+     * @return
+     */
+    @GetMapping("/orders/{order_id}")
+    public ResponseEntity<?> getDeliveryByOrderId(@PathVariable UUID order_id){
+        return ResponseEntity.ok().body(deliveryService.getDeliveryByOrderId(order_id));
+    }
 }

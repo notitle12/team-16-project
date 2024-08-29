@@ -25,7 +25,7 @@ public class DeliveryService {
     public void createDelivery(CreateDeliveryRequestDto requestDto) {
 
         //존재하는 주문ID인지 검증
-        Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrder_id()).orElseThrow(
+       Order order = orderRepository.findByOrderIdAndIsActiveTrue(requestDto.getOrder_id()).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
         );
 
@@ -61,6 +61,25 @@ public class DeliveryService {
         Delivery newDelivery = deliveryRepository.save(delivery);
 
         return convertDeliveryToDeliveryResponseDto(newDelivery);
+    }
+
+    /***
+     * 고객이 주문한 내역의 배송지를 조회하는 함수
+     * @param orderId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public DeliveryResponseDto getDeliveryByOrderId(UUID orderId) {
+        //주문 ID 존재하는 지 검증
+        Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
+        );
+
+        Delivery delivery = deliveryRepository.findByOrderAndIsActiveTrue(order).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+        );
+
+        return convertDeliveryToDeliveryResponseDto(delivery);
     }
 
     //Entity -> Dto
