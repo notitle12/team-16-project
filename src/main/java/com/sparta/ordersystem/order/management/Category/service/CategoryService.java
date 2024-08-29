@@ -27,7 +27,7 @@ public class CategoryService {
 
         UserRoleEnum userRoleEnum = user.getRole();
 
-        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
             throw new AccessDeniedException("관리자만 카테고리 생성 가능합니다.");
         }
 
@@ -70,7 +70,7 @@ public class CategoryService {
 
         UserRoleEnum userRoleEnum = user.getRole();
 
-        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
             throw new AccessDeniedException("관리자만 카테고리 수정 가능합니다.");
         }
 
@@ -94,7 +94,7 @@ public class CategoryService {
 
         UserRoleEnum userRoleEnum = user.getRole();
 
-        if(userRoleEnum == UserRoleEnum.CUSTOMER || userRoleEnum == UserRoleEnum.OWNER){
+        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
             throw new AccessDeniedException("관리자만 카테고리 삭제 가능합니다.");
         }
 
