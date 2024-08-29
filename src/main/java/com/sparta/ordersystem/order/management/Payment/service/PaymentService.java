@@ -7,11 +7,13 @@ import com.sparta.ordersystem.order.management.Payment.dto.PaymentResponseDto;
 import com.sparta.ordersystem.order.management.Payment.dto.UpdateStatusRequestDto;
 import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -75,5 +77,24 @@ public class PaymentService {
         payment.updateStatus(requestDto.getPaymentStatus());
 
         paymentRepository.save(payment);
+    }
+
+    /***
+     * 해당 유저의 결제내역 조회하는 비즈니스 로직
+     * 1. 해당 유저이 주문했던 주문 내역들을 가져오기
+     * 2. 주문 ID를 통해 결제내역들 조회하기
+     * @param user
+     * @return
+     */
+    public List<PaymentResponseDto> getAllPaymentsByUserId(User user) {
+        List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getId());
+
+        if(responseDtoList.isEmpty() || responseDtoList.size() == 0){
+            throw new IllegalArgumentException( messageSource.getMessage("not.found.payments.list",null,
+                    "결제한 내역이 없습니다.",
+                    Locale.getDefault()));
+        }
+
+        return responseDtoList;
     }
 }

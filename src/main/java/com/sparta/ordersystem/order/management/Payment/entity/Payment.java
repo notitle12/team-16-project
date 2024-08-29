@@ -22,7 +22,7 @@ public class Payment extends Timestamped {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @Column(unique = true, nullable = false,name ="payment_id")
+    @Column(nullable = false,name ="payment_id")
     private UUID paymentId;
 
     @OneToOne(cascade = CascadeType.ALL)

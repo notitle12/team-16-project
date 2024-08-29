@@ -44,4 +44,10 @@ public class PaymentController {
         paymentService.updatePaymentStatus(payment_id,requestDto);
         return ResponseEntity.ok().body("결제 상태가 "+ requestDto.getPaymentStatus() + "로 수정되었습니다.");
     }
+
+    @GetMapping
+    public ResponseEntity<?> getAllPayments(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok().body(paymentService.getAllPaymentsByUserId(userDetails.getUser()));
+
+    }
 }
