@@ -20,19 +20,20 @@ public class AiService {
 
     private final RestTemplate restTemplate;
     private final AiRepository aiRepository;
-//    private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Value("${google.api.key}")
     private String apiKey;
 
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
-    public AiService(RestTemplate restTemplate, AiRepository aiRepository) {
+    public AiService(RestTemplate restTemplate, AiRepository aiRepository, UserRepository userRepository) {
         this.restTemplate = restTemplate;
         this.aiRepository = aiRepository;
+        this.userRepository = userRepository;
     }
 
-    public AiResponseDto getRecommendations(AiRequestDto requestDto) {
+    public AiResponseDto getRecommendations(AiRequestDto requestDto, Long user_id) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -51,9 +52,13 @@ public class AiService {
         String responseBody = responseEntity.getBody();
         String responseText = extractTextFromResponse(responseBody);
 
+        // 사용자 조회
+        User user = userRepository.findById(user_id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + user_id));
+
+
         // 데이터 저장 및 DTO 반환
-        Ai ai = new Ai();
-        ai.setResponse(responseText);
+        Ai ai = new Ai(responseText, user);
 
         // 로그 추가
         System.out.println("Saving Ai entity: " + ai.toString());

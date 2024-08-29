@@ -28,17 +28,13 @@ public class Ai {
     @Column(name = "response", length = 255)
     private String response;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user; // User와의 관계 추가
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // User와의 관계 추가
 
-        public Ai(String response) {
+    public Ai(String response, User user) {
         this.response = response;
-        }
-
-//    public Ai(String response, User user) {
-//        this.response = response;
-//        this.user = user;
-//    }
+        this.user = user;
+    }
 
 }

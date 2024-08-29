@@ -13,4 +13,6 @@ public class AiResponseDto {
 
     private String text;
 
+    private Long user_id;
+
 }

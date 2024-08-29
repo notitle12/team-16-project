@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class UserDetailsImpl implements UserDetails {
-
     private final User user;
 
     public UserDetailsImpl(User user) {
@@ -67,6 +66,11 @@ public class UserDetailsImpl implements UserDetails {
 
     // userdetails에서 user_id를 추출하기 위해 추가된 메서드
     public Long getUser_id() {
+        return user.getUser_id();
+    }
+
+    // User 객체에서 user_id를 반환하는 메서드
+    public Long getUserId() {
         return user.getUser_id();
     }
 }
