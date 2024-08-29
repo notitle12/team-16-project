@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Delivery.entity;
 
+import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
@@ -26,7 +27,8 @@ public class Delivery extends Timestamped {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    UUID delivery_id;
+    @Column(name = "delivery_Id")
+    UUID deliveryId;
 
     @Size(max = 255)
     @Column(length = 255, nullable = false, unique = true)
@@ -41,4 +43,9 @@ public class Delivery extends Timestamped {
 
     @Column(name = "is_active")
     boolean isActive;
+
+    public void updateDelivery(UpdateDeliveryRequestDto dto){
+        this.request_note = dto.getRequest_note();
+        this.address = dto.getAddress();
+    }
 }

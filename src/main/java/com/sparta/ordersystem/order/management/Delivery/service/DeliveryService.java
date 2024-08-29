@@ -1,6 +1,8 @@
 package com.sparta.ordersystem.order.management.Delivery.service;
 
 import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryRequestDto;
+import com.sparta.ordersystem.order.management.Delivery.dto.DeliveryResponseDto;
+import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.entity.Delivery;
 import com.sparta.ordersystem.order.management.Delivery.repository.DeliveryRepository;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
@@ -30,5 +32,31 @@ public class DeliveryService {
         Delivery delivery = requestDto.toEntity(true,order);
 
         deliveryRepository.save(delivery);
+    }
+
+    @Transactional
+    public DeliveryResponseDto updateDelivery(UUID deliveryId, UpdateDeliveryRequestDto updateDeliveryRequestDto) {
+
+        Delivery delivery = deliveryRepository.findByDeliveryIdAndIsActiveTrue(deliveryId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 배달 ID입니다.")
+        );
+
+        delivery.updateDelivery(updateDeliveryRequestDto);
+
+        Delivery newDelivery = deliveryRepository.save(delivery);
+
+        return convertDeliveryToDeliveryResponseDto(newDelivery);
+
+    }
+
+    private DeliveryResponseDto convertDeliveryToDeliveryResponseDto(Delivery delivery) {
+        return DeliveryResponseDto.builder()
+                .delivery_id(delivery.getDeliveryId())
+                .address(delivery.getAddress())
+                .requset_note(delivery.getRequest_note())
+                .order_id(delivery.getOrder().getOrderId())
+                .created_at(delivery.getCreated_at())
+                .updated_at(delivery.getUpdated_at())
+                .build();
     }
 }

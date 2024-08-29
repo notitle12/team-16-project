@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.Delivery.controller;
 
 import com.sparta.ordersystem.order.management.Delivery.dto.CreateDeliveryRequestDto;
+import com.sparta.ordersystem.order.management.Delivery.dto.UpdateDeliveryRequestDto;
 import com.sparta.ordersystem.order.management.Delivery.service.DeliveryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,4 +23,12 @@ public class DeliveryController {
         deliveryService.createDelivery(requestDto);
         return ResponseEntity.ok().body("배송지 등록이 완료되었습니다.");
     }
+
+    @PutMapping("{delivery_id}")
+    public ResponseEntity<?> updateDelivery(@PathVariable UUID delivery_id,
+                                            @RequestBody UpdateDeliveryRequestDto updateDeliveryRequestDto)
+    {
+        return ResponseEntity.ok().body(deliveryService.updateDelivery(delivery_id,updateDeliveryRequestDto));
+    }
+
 }
