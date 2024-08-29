@@ -64,4 +64,9 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    // userdetails에서 user_id를 추출하기 위해 추가된 메서드
+    public Long getUser_id() {
+        return user.getUser_id();
+    }
 }

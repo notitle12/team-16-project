@@ -11,8 +11,10 @@ import lombok.Setter;
 @Table(name = "p_user")
 @NoArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false,name ="ai_id")
     private Long user_id;
 
     @Column(nullable = false, unique = true)
