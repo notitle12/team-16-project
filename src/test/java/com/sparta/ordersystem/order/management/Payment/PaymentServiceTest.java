@@ -13,6 +13,7 @@ import com.sparta.ordersystem.order.management.Payment.exception.PaymentNotFound
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.Payment.service.PaymentService;
 import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,10 @@ class PaymentServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private MessageSource messageSource;
+
+    @Mock
+    private UserDetailsImpl userDetails;
+
     @InjectMocks
     private PaymentService paymentService;
 
@@ -133,10 +138,12 @@ class PaymentServiceTest {
                 .build();
 
         given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
+        given(userDetails.getUser()).willReturn(new User());
 
         paymentService.updatePaymentStatus(paymentId,UpdateStatusRequestDto.builder()
                         .paymentStatus(PaymentStatus.REFUNDED)
-                .build());
+
+                .build(),userDetails.getUser());
 
         verify(paymentRepository).save(payment);
 
@@ -152,9 +159,10 @@ class PaymentServiceTest {
         given(messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
                 "존재하지 않는 결제 ID입니다.",
                 Locale.getDefault())).willReturn(expectedMessage);
+        given(userDetails.getUser()).willReturn(new User());
 
         Exception exception = assertThrows(PaymentNotFoundException.class,
-                () -> paymentService.updatePaymentStatus(paymentId,UpdateStatusRequestDto.builder().build()));
+                () -> paymentService.updatePaymentStatus(paymentId,UpdateStatusRequestDto.builder().build(),userDetails.getUser()));
 
         assertEquals(expectedMessage, exception.getMessage());
 
