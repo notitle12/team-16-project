@@ -25,12 +25,12 @@ public class StoreController {
         return storeService.createStore(storeCreateRequestDto, userDetails.getUser());
     }
 
-    @GetMapping("/store/{store_id}")
+    @GetMapping("/stores/{store_id}")
     public StoreGetResponseDto getStore(@PathVariable UUID store_id){
         return storeService.getStore(store_id);
     }
 
-    @GetMapping("/store")
+    @GetMapping("/stores")
     public List<StoreGetResponseDto> getAllStore(
             @RequestParam(name="region_id",required = false) UUID regionId,
             @RequestParam(name="category_id", required = false) UUID categoryId,
@@ -74,14 +74,14 @@ public class StoreController {
     }
 
 
-    @PatchMapping("/store/{store_id}")
+    @PatchMapping("/stores/{store_id}")
     public StoreUpdateResponseDto updateStore(@PathVariable(name="store_id") UUID storeId,
                                               @RequestBody StoreUpdateRequestDto storeUpdateRequestDto,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails){
         return storeService.updateService(storeId, storeUpdateRequestDto, userDetails.getUser() );
     }
 
-    @DeleteMapping("/store/{store_id}")
+    @DeleteMapping("/stores/{store_id}")
     public StoreDeleteResponseDto deleteStore(@PathVariable(name="store_id") UUID storeId,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails){
         return storeService.deleteService(storeId, userDetails.getUser());
