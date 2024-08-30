@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.Category.entity;
 
 
 import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Table(name="p_category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Category {
+public class Category extends Timestamped {
 
     @Id
     @Column(name="category_id")
