@@ -43,7 +43,7 @@ public class DeliveryController {
     public ResponseEntity<?> deleteDelivery(@PathVariable UUID delivery_id,
                                             @AuthenticationPrincipal UserDetailsImpl userDetails)
     {
-        return ResponseEntity.ok().body(deliveryService.deleteDelivery(delivery_id,userDetails.getUser().getId()));
+        return ResponseEntity.ok().body(deliveryService.deleteDelivery(delivery_id,userDetails.getUser().getUser_id()));
     }
 
     /***

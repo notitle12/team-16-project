@@ -163,7 +163,7 @@ class PaymentServiceTest {
     void testSuccessGetAllPayments(){
 
         User user = new User();
-        user.setId(1L);
+        user.setUser_id(1L);
 
         List<PaymentResponseDto> paymentList
                 = List.of(
@@ -171,7 +171,7 @@ class PaymentServiceTest {
                 PaymentResponseDto.builder().build()
         );
 
-        given(paymentRepository.getAllPaymentsByUserId(user.getId())).willReturn(paymentList);
+        given(paymentRepository.getAllPaymentsByUserId(user.getUser_id())).willReturn(paymentList);
 
         List<PaymentResponseDto> result = paymentService.getAllPaymentsByUserId(user);
 
@@ -182,10 +182,10 @@ class PaymentServiceTest {
     @DisplayName("결제 내역들 조회 - 존재하지 않는 결제 내역들")
     void testErrorGetAllPaymentsNotExistedPayments(){
         User user = new User();
-        user.setId(1L);
+        user.setUser_id(1L);
         String expectedMessage = "결제한 내역이 없습니다.";
 
-        given(paymentRepository.getAllPaymentsByUserId(user.getId())).willReturn(List.of());
+        given(paymentRepository.getAllPaymentsByUserId(user.getUser_id())).willReturn(List.of());
         given(messageSource.getMessage("not.found.payments.list",null,
                 "결제한 내역이 없습니다.",
                 Locale.getDefault())).willReturn(expectedMessage);

@@ -26,7 +26,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom{
 
         List<Payment> paymentList = jpaQueryFactory.selectFrom(qPayment)
                 .leftJoin(qPayment.order,qOrder).fetchJoin()
-                .where(qOrder.user.id.eq(userId))
+                .where(qOrder.user.user_id.eq(userId))
                 .orderBy(qPayment.created_at.desc())
                 .fetch();
 

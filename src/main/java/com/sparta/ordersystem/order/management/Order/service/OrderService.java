@@ -93,7 +93,7 @@ public class OrderService {
         if(OrderStatus.CANCEL.equals(orderStatus))
         {
             //고객인 경우
-            if(UserRoleEnum.CUSTOMER.equals(user.getRole()) && !order.getUser().getId().equals(user.getId()))
+            if(UserRoleEnum.CUSTOMER.equals(user.getRole()) && !order.getUser().getUser_id().equals(user.getUser_id()))
             {
                 throw new AccessDeniedException("본인의 주문만 취소할 수 있습니다.");
             }
@@ -160,7 +160,7 @@ public class OrderService {
                 )
         );
 
-        return orderRepository.getOrderById(orderId, user.getId());
+        return orderRepository.getOrderById(orderId, user.getUser_id());
 
     }
 }

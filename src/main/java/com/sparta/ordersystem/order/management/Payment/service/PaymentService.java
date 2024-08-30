@@ -89,7 +89,7 @@ public class PaymentService {
      * @return
      */
     public List<PaymentResponseDto> getAllPaymentsByUserId(User user) {
-        List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getId());
+        List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getUser_id());
 
         if(responseDtoList.isEmpty() || responseDtoList.size() == 0){
             throw new PaymentNotFoundException( messageSource.getMessage("not.found.payments.list",null,

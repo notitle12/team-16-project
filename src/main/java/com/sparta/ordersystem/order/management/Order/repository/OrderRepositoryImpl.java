@@ -90,7 +90,7 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
     private OrderResponseDto convertOrderToOrderResponseDto(Order order) {
         return OrderResponseDto.builder()
                 .order_id(order.getOrderId())
-                .user_id(order.getUser().getId())
+                .user_id(order.getUser().getUser_id())
                 .state(order.getOrderStatus())
                 .created_at(order.getCreated_at())
                 .created_by(order.getCreated_by())
