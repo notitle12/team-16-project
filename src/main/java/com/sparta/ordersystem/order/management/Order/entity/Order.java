@@ -44,7 +44,7 @@ public class Order extends Timestamped {
     OrderType orderType;//
 
     //가게 id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "store_id")
     Store store;
 
