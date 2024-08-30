@@ -4,10 +4,7 @@ package com.sparta.ordersystem.order.management.Category.entity;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -32,6 +29,7 @@ public class Category extends Timestamped {
     boolean isActive;
 
     @OneToMany(mappedBy = "category")
+    @ToString.Exclude
     private List<Store> stores = new ArrayList<>();
 
 

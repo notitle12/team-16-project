@@ -4,10 +4,7 @@ import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Region.entity.Region;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SoftDelete;
 
@@ -32,6 +29,7 @@ public class Store {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @ToString.Exclude
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
