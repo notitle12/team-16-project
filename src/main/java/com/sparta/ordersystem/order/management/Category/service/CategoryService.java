@@ -65,7 +65,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryGetResponseDto getCategory(UUID categoryId) {
         String action = GET_ACTION;
-        Category category  = findCategoryById(categoryId,action);
+        Category category  = findCategoryById(categoryId);
         return convertToCategoryGetResponseDto(category);
     }
 
@@ -110,7 +110,7 @@ public class CategoryService {
 
         checkManagerOrMaster(userRoleEnum,action);
         checkDuplicateByCategoryName(categoryName);
-        Category category  = findCategoryById(categoryId,action);
+        Category category  = findCategoryById(categoryId);
 
         category.updateCategoryName(categoryUpdateRequestDto.getCategoryName());
 
@@ -131,7 +131,7 @@ public class CategoryService {
         String action = DELETE_ACTION;
         checkManagerOrMaster(userRoleEnum,action);
 
-        Category category  = findCategoryById(categoryId,action);
+        Category category  = findCategoryById(categoryId);
         category.softDeleted();
 
         return convertToCategoryDeleteResponseDto(category);
@@ -142,13 +142,30 @@ public class CategoryService {
      * 주어진 카테고리 Id를 기준으로 카테고리 엔티티 조회
      *
      * @param categoryId 조회하려는 카테고리 Id
-     * @param action 수행중인 작업 (ex "생성", "수정", 삭제 등)
      * @return 조회한 카테고리 엔티티
      */
-    private Category findCategoryById(UUID categoryId, String action) {
+    private Category findCategoryById(UUID categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> createIllegalArgumentException(CATEGORY_ID, action, categoryId.toString()));
+                .orElseThrow(() -> createNullPointerException(CATEGORY_ID, categoryId.toString()));
     }
+
+    /**
+     * 조회한 항목이 존재하지 않을 시 NullPointerException 생성
+     *
+     * @param column 체크 대상 컬럼명 (ex ID, 이름 등 )
+     * @param value 체크 대상 값
+     * @return 커스텀 메시지가 포함된 NullPointerException 객체
+     */
+    private NullPointerException createNullPointerException(String column,String value){
+        return new NullPointerException(messageSource.getMessage(
+                "error.null.item",
+                new String[]{CATEGORY, column, value},
+                "해당 항목이 존재하지 않습니다. 다시 확인해 주세요. : " + value ,
+                Locale.getDefault()
+        ));
+    }
+
+
 
     /**
      * 관리자 또는 마스터 권한 체크
@@ -183,22 +200,6 @@ public class CategoryService {
         }
     }
 
-    /**
-     * 유효하지 않은 예외 커스텀하게 생성
-     *
-     * @param column 체크 대상 컬럼명 (ex ID, 이름 등 )
-     * @param action 수행중인 작업 (ex "생성", "수정", 삭제 등)
-     * @param invalidValue 체크 대상 값
-     * @return 커스텀 메시지가 포함된 IllegalArgumentException 객체
-     */
-    private IllegalArgumentException createIllegalArgumentException(String column, String action, String invalidValue){
-        return new IllegalArgumentException(messageSource.getMessage(
-                "illegal.action.invalid",
-                new String[]{CATEGORY,column, action, invalidValue},
-                "유효하지 않은 값입니다. 다시 확인해 주세요. : " + invalidValue ,
-                Locale.getDefault()
-        ));
-    }
 
 
     /**
