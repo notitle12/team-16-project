@@ -7,6 +7,7 @@ import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.entity.OrderStatus;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
+import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.exception.OrderCancelException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
@@ -35,17 +36,32 @@ public class OrderService {
 
     /**
      * 주문을 등록해주는 메소드
+     * 대면 주문 처리: 가게 사장님이 직접 대면 주문을 접수
+     * TODO : 주문에 가게 id가 연결되어야 될거같다.
+     * 어떤 고객이 어디 가게에서 주문을 했는지 알아야되는데 주문에 메뉴가 있다?
+     * 가게를 알기 위해서는 고객 -> 주문 -> 메뉴 -> 가게로 가야된다.
+     * 조인을 많이 하면 할 수록 성능저하
      * @param requestDto
      */
     @Transactional
     public void createOrder(CreateOrderRequestDto requestDto, User user) {
 
-        Order order = Order.builder()
-                .user(user)
-                .orderStatus(OrderStatus.CREATE)
-                .build();
+        //대면 주문인 경우
+        if(OrderType.IN_PERSON.equals(requestDto.getOrderType()))
+        {
+            //TODO : 가게 id 존재하는지 검증 로직 추가
 
-        //requestDto 의 메뉴ID들이 모두 다 있는 지 확인
+            //사장님인지 검증
+            if(!UserRoleEnum.OWNER.equals(user.getRole()))
+            {
+                throw new AccessDeniedException("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.");
+            }
+
+        }
+
+        Order order = requestDto.toEntity(user);
+
+        //주문하려고하는 메뉴들이 존재하는지 검증
         for(UUID menuId : requestDto.getMenu_ids())
         {
             Menu menu = menuRepository.findById(menuId).orElseThrow(
@@ -57,6 +73,8 @@ public class OrderService {
 
         orderRepository.save(order);
     }
+
+
 
     /***
      * 주문 상태를 업데이트하는 함수

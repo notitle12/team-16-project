@@ -42,9 +42,14 @@ public class Order extends Timestamped {
     @Enumerated(EnumType.STRING)
     OrderType orderType;//
 
+    //가게 id
+    @Column(name ="store_id")
+    UUID storeId;
+
     @Column(nullable = false, name = "is_active")
     @Builder.Default
     boolean isActive = true; //주문 취소여부
+
 
     @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
     @Builder.Default
