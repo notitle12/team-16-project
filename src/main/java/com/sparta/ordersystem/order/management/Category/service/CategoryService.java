@@ -6,6 +6,8 @@ import com.sparta.ordersystem.order.management.Category.repository.CategoryRepos
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.bridge.Message;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -21,32 +24,30 @@ import java.util.UUID;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final MessageSource messageSource;
+    private final String CATEGORY = "카테고리";
+    private final String CATEGORY_NAME = "명";
+    private final String CATEGORY_ID = "ID";
 
     @Transactional(readOnly = false)
     public CategoryCreateResponseDto createCategory(CategoryCreateRequestDto categoryCreateRequestDto, User user) {
 
         UserRoleEnum userRoleEnum = user.getRole();
+        String categoryName = categoryCreateRequestDto.getCategoryName();
+        String action = "생성";
 
-        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
-            throw new AccessDeniedException("관리자만 카테고리 생성 가능합니다.");
-        }
-
-
-        if (categoryRepository.existsByCategoryName(categoryCreateRequestDto.getCategoryName())) {
-            throw new IllegalArgumentException("카테고리 이름이 중복입니다.");
-        }
-
+        checkManagerOrMaster(userRoleEnum,action);
+        checkDuplicate(CATEGORY_NAME,categoryName);
 
         Category category = categoryRepository.save(categoryCreateRequestDto.toEntity());
         return convertToCategoryCreateResponseDto(category);
     }
 
+
     @Transactional(readOnly = true)
     public CategoryGetResponseDto getCategory(UUID categoryId) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
-                () -> new IllegalArgumentException("Illegal CategoryId")
-        );
-
+        String action = "조회";
+        Category category  = findCategoryById(categoryId,action);
         return convertToCategoryGetResponseDto(category);
     }
 
@@ -69,19 +70,12 @@ public class CategoryService {
                                                     User user) {
 
         UserRoleEnum userRoleEnum = user.getRole();
+        String categoryName = categoryUpdateRequestDto.getCategoryName();
+        String action = "수정";
 
-        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
-            throw new AccessDeniedException("관리자만 카테고리 수정 가능합니다.");
-        }
-
-
-        if(categoryRepository.existsByCategoryName(categoryUpdateRequestDto.getCategoryName())){
-            throw new IllegalArgumentException("카테고리 이름이 중복입니다.");
-        }
-
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
-                ()->  new NullPointerException("해당 카테고리를 찾을 수 없습니다"));
-
+        checkManagerOrMaster(userRoleEnum,action);
+        checkDuplicate(CATEGORY_NAME,categoryName);
+        Category category  = findCategoryById(categoryId,action);
 
         category.updateCategoryName(categoryUpdateRequestDto.getCategoryName());
 
@@ -91,23 +85,60 @@ public class CategoryService {
 
     @Transactional(readOnly = false)
     public CategoryDeleteResponseDto deleteCategory(UUID categoryId, User user) {
-
         UserRoleEnum userRoleEnum = user.getRole();
+        String action = "삭제";
+        checkManagerOrMaster(userRoleEnum,action);
 
-        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
-            throw new AccessDeniedException("관리자만 카테고리 삭제 가능합니다.");
-        }
-
-
-        Category category = categoryRepository.findById(categoryId).orElseThrow(
-                ()->  new NullPointerException("해당 카테고리를 찾을 수 없습니다"));
-
+        Category category  = findCategoryById(categoryId,action);
         category.softDeleted();
 
         return convertToCategoryDeleteResponseDto(category);
     }
 
 
+    /* 카테고리 기준으로 find */
+    private Category findCategoryById(UUID categoryId, String action) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> createIllegalArgumentException(CATEGORY_ID, action, categoryId.toString()));
+    }
+
+    /* 체크를 위한 메서드들 */
+
+    // 권한 체크 메서드
+    private void checkManagerOrMaster(UserRoleEnum userRoleEnum, String action){
+        if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
+            throw new AccessDeniedException(messageSource.getMessage(
+                    "manager.master.possible.action",
+                    new String[]{CATEGORY, action ,userRoleEnum.toString()},
+                    "권한 체크 부탁드립니다 : "+userRoleEnum.toString(),
+                    Locale.getDefault()
+            ));
+        }
+    }
+
+    // 중복 체크 메서드
+    private void checkDuplicate(String column, String categoryName){
+        if (categoryRepository.existsByNameAndIsActive(categoryName)) {
+            throw new IllegalArgumentException(messageSource.getMessage(
+                    "error.duplicate.item",
+                    new String[]{CATEGORY,column,categoryName},
+                    "중복 체크 부탁드립니다 : " + categoryName ,
+                    Locale.getDefault()
+            ));
+        }
+    }
+    // 잘못된 카테고리 ID 체크 메서드
+    private IllegalArgumentException createIllegalArgumentException(String column, String action, String invalidValue){
+        return new IllegalArgumentException(messageSource.getMessage(
+                "illegal.action.invalid",
+                new String[]{CATEGORY,column, action, invalidValue},
+                "유효하지 않은 값입니다. 다시 확인해 주세요. : " + invalidValue ,
+                Locale.getDefault()
+        ));
+    }
+
+
+    // Entity -> Dto 변환 메서드
     private CategoryCreateResponseDto convertToCategoryCreateResponseDto(Category category) {
         return CategoryCreateResponseDto.builder()
                 .categoryId(category.getCategoryId())
