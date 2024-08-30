@@ -25,10 +25,15 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final MessageSource messageSource;
+
     private final String CATEGORY = "카테고리";
     private final String CATEGORY_NAME = "명";
     private final String CATEGORY_ID = "ID";
 
+    private final String CREATE_ACTION = "생성";
+    private final String UPDATE_ACTION = "수정";
+    private final String GET_ACTION = "조회";
+    private final String DELETE_ACTION = "삭제";
 
     /**
      * 관리자 또는 마스터가 새로운 카테고리 생성
@@ -42,7 +47,7 @@ public class CategoryService {
 
         UserRoleEnum userRoleEnum = user.getRole();
         String categoryName = categoryCreateRequestDto.getCategoryName();
-        String action = "생성";
+        String action = CREATE_ACTION;
 
         checkManagerOrMaster(userRoleEnum,action);
         checkDuplicateByCategoryName(categoryName);
@@ -59,7 +64,7 @@ public class CategoryService {
      */
     @Transactional(readOnly = true)
     public CategoryGetResponseDto getCategory(UUID categoryId) {
-        String action = "조회";
+        String action = GET_ACTION;
         Category category  = findCategoryById(categoryId,action);
         return convertToCategoryGetResponseDto(category);
     }
@@ -101,7 +106,7 @@ public class CategoryService {
 
         UserRoleEnum userRoleEnum = user.getRole();
         String categoryName = categoryUpdateRequestDto.getCategoryName();
-        String action = "수정";
+        String action = UPDATE_ACTION;
 
         checkManagerOrMaster(userRoleEnum,action);
         checkDuplicateByCategoryName(categoryName);
@@ -123,7 +128,7 @@ public class CategoryService {
     @Transactional(readOnly = false)
     public CategoryDeleteResponseDto deleteCategory(UUID categoryId, User user) {
         UserRoleEnum userRoleEnum = user.getRole();
-        String action = "삭제";
+        String action = DELETE_ACTION;
         checkManagerOrMaster(userRoleEnum,action);
 
         Category category  = findCategoryById(categoryId,action);
