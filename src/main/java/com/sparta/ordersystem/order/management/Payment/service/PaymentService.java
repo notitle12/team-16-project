@@ -88,6 +88,7 @@ public class PaymentService {
      * @param user
      * @return
      */
+    @Transactional(readOnly = true)
     public List<PaymentResponseDto> getAllPaymentsByUserId(User user) {
         List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getUser_id());
 
