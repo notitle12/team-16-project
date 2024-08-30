@@ -134,7 +134,9 @@ class PaymentServiceTest {
 
         given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
 
-        paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED));
+        paymentService.updatePaymentStatus(paymentId,UpdateStatusRequestDto.builder()
+                        .paymentStatus(PaymentStatus.REFUNDED)
+                .build());
 
         verify(paymentRepository).save(payment);
 
@@ -152,7 +154,7 @@ class PaymentServiceTest {
                 Locale.getDefault())).willReturn(expectedMessage);
 
         Exception exception = assertThrows(PaymentNotFoundException.class,
-                () -> paymentService.updatePaymentStatus(paymentId,new UpdateStatusRequestDto(PaymentStatus.COMPLETED)));
+                () -> paymentService.updatePaymentStatus(paymentId,UpdateStatusRequestDto.builder().build()));
 
         assertEquals(expectedMessage, exception.getMessage());
 

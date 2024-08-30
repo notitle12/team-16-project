@@ -50,7 +50,7 @@ public class OrderService {
         UUID storeId = requestDto.getStore_id();
 
         Store store = storeRepository.findById(storeId).orElseThrow(
-                () -> new IllegalStateException("Store with id " + storeId + " not found")
+                () -> new IllegalArgumentException("Store with id " + storeId + " not found")
         );
 
         //대면 주문인 경우
@@ -90,7 +90,6 @@ public class OrderService {
         //존재하는 주문인지 검증
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId)
                 .orElseThrow(()->new OrderNotFoundException("존재하지 않는 주문입니다."));
-
 
         //주문 취소인 경우
         if(OrderStatus.CANCEL.equals(orderStatus))

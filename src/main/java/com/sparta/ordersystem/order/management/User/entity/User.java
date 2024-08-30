@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.User.entity;
 
 import com.sparta.ordersystem.order.management.Ai.entity.Ai;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Ai> ai; // User가 여러 개의 Ai를 가질 수 있음
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Store> stores;
 
     public User(String username, String password, String email, UserRoleEnum role) {
         this.username = username;
