@@ -29,6 +29,14 @@ public class CategoryService {
     private final String CATEGORY_NAME = "명";
     private final String CATEGORY_ID = "ID";
 
+
+    /**
+     * 관리자 또는 마스터가 새로운 카테고리 생성
+     *
+     * @param categoryCreateRequestDto 생성할 카테고리 정보
+     * @param user 카테고리 생성 요청을 한 사용자
+     * @return 생성된 카테고리 정보
+     */
     @Transactional(readOnly = false)
     public CategoryCreateResponseDto createCategory(CategoryCreateRequestDto categoryCreateRequestDto, User user) {
 
@@ -37,13 +45,18 @@ public class CategoryService {
         String action = "생성";
 
         checkManagerOrMaster(userRoleEnum,action);
-        checkDuplicate(CATEGORY_NAME,categoryName);
+        checkDuplicateByCategoryName(categoryName);
 
         Category category = categoryRepository.save(categoryCreateRequestDto.toEntity());
         return convertToCategoryCreateResponseDto(category);
     }
 
-
+    /**
+     * 카테고리 단건 조회
+     *
+     * @param categoryId 조회할 카테고리 Id
+     * @return 조회한 카테고리 정보
+     */
     @Transactional(readOnly = true)
     public CategoryGetResponseDto getCategory(UUID categoryId) {
         String action = "조회";
@@ -51,6 +64,15 @@ public class CategoryService {
         return convertToCategoryGetResponseDto(category);
     }
 
+    /**
+     * 페이지 및 정렬 기준으로 카테고리 전체 조회
+     *
+     * @param page 조회할 페이지 번호
+     * @param size 페이지 당 표시할 아이템 개수
+     * @param sortBy 정렬 기준
+     * @param isAsc 정렬 방법 (asc , desc)
+     * @return 조회한 카테고리 정보 전체
+     */
     @Transactional(readOnly = true)
     public List<CategoryGetResponseDto> getAllCategory(int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -64,6 +86,14 @@ public class CategoryService {
                 .toList();
     }
 
+    /**
+     * 관리자 또는 마스터가 카테고리 정보 수정
+     *
+     * @param categoryId 수정할 카테고리 ID
+     * @param categoryUpdateRequestDto 수정할 카테고리 정보
+     * @param user 카테고리 수정을 요청한 사용자
+     * @return 수정된 카테고리 정보
+     */
     @Transactional(readOnly = false)
     public CategoryUpdateResponseDto updateCategory(UUID categoryId,
                                                     CategoryUpdateRequestDto categoryUpdateRequestDto,
@@ -74,7 +104,7 @@ public class CategoryService {
         String action = "수정";
 
         checkManagerOrMaster(userRoleEnum,action);
-        checkDuplicate(CATEGORY_NAME,categoryName);
+        checkDuplicateByCategoryName(categoryName);
         Category category  = findCategoryById(categoryId,action);
 
         category.updateCategoryName(categoryUpdateRequestDto.getCategoryName());
@@ -83,6 +113,13 @@ public class CategoryService {
     }
 
 
+    /**
+     * 관리자 또는 마스터가 카테고리 삭제
+     *
+     * @param categoryId 삭제할 카테고리 Id
+     * @param user 삭제 요청한 사용자
+     * @return 삭제 처리된 카테고리 정보
+     */
     @Transactional(readOnly = false)
     public CategoryDeleteResponseDto deleteCategory(UUID categoryId, User user) {
         UserRoleEnum userRoleEnum = user.getRole();
@@ -96,15 +133,24 @@ public class CategoryService {
     }
 
 
-    /* 카테고리 기준으로 find */
+    /**
+     * 주어진 카테고리 Id를 기준으로 카테고리 엔티티 조회
+     *
+     * @param categoryId 조회하려는 카테고리 Id
+     * @param action 수행중인 작업 (ex "생성", "수정", 삭제 등)
+     * @return 조회한 카테고리 엔티티
+     */
     private Category findCategoryById(UUID categoryId, String action) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> createIllegalArgumentException(CATEGORY_ID, action, categoryId.toString()));
     }
 
-    /* 체크를 위한 메서드들 */
-
-    // 권한 체크 메서드
+    /**
+     * 관리자 또는 마스터 권한 체크
+     *
+     * @param userRoleEnum 사용자 권한
+     * @param action 수행중인 작업 (ex "생성", "수정", 삭제 등)
+     */
     private void checkManagerOrMaster(UserRoleEnum userRoleEnum, String action){
         if(userRoleEnum != UserRoleEnum.MASTER && userRoleEnum != UserRoleEnum.MANAGER){
             throw new AccessDeniedException(messageSource.getMessage(
@@ -116,18 +162,30 @@ public class CategoryService {
         }
     }
 
-    // 중복 체크 메서드
-    private void checkDuplicate(String column, String categoryName){
+    /**
+     * 카테고리 명에 대한 중복 여부 체크
+     *
+     * @param categoryName 중복 체크할 카테고리 명
+     */
+    private void checkDuplicateByCategoryName(String categoryName){
         if (categoryRepository.existsByNameAndIsActive(categoryName)) {
             throw new IllegalArgumentException(messageSource.getMessage(
                     "error.duplicate.item",
-                    new String[]{CATEGORY,column,categoryName},
+                    new String[]{CATEGORY,CATEGORY_NAME,categoryName},
                     "중복 체크 부탁드립니다 : " + categoryName ,
                     Locale.getDefault()
             ));
         }
     }
-    // 잘못된 카테고리 ID 체크 메서드
+
+    /**
+     * 유효하지 않은 예외 커스텀하게 생성
+     *
+     * @param column 체크 대상 컬럼명 (ex ID, 이름 등 )
+     * @param action 수행중인 작업 (ex "생성", "수정", 삭제 등)
+     * @param invalidValue 체크 대상 값
+     * @return 커스텀 메시지가 포함된 IllegalArgumentException 객체
+     */
     private IllegalArgumentException createIllegalArgumentException(String column, String action, String invalidValue){
         return new IllegalArgumentException(messageSource.getMessage(
                 "illegal.action.invalid",
@@ -138,7 +196,12 @@ public class CategoryService {
     }
 
 
-    // Entity -> Dto 변환 메서드
+    /**
+     * Category -> CategoryCreateResponseDto 변환
+     *
+     * @param category 변환할 카테고리 엔티티
+     * @return 생성된 카테고리 정보 담은 Dto
+     */
     private CategoryCreateResponseDto convertToCategoryCreateResponseDto(Category category) {
         return CategoryCreateResponseDto.builder()
                 .categoryId(category.getCategoryId())
@@ -146,6 +209,13 @@ public class CategoryService {
                 .build();
     }
 
+
+    /**
+     * Category -> CategoryGetResponseDto 변환
+     *
+     * @param category 변환할 카테고리 엔티티
+     * @return 조회한 카테고리 정보 담은 Dto
+     */
     private CategoryGetResponseDto convertToCategoryGetResponseDto(Category category) {
         return CategoryGetResponseDto.builder()
                 .categoryId(category.getCategoryId())
@@ -153,6 +223,12 @@ public class CategoryService {
                 .build();
     }
 
+    /**
+     * Category -> CategoryUpdateResponseDto 변환
+     *
+     * @param category 변환할 카테고리 엔티티
+     * @return 수정한 카테고리 정보 담은 Dto
+     */
     private CategoryUpdateResponseDto convertToCategoryUpdateResponseDto(Category category) {
         return CategoryUpdateResponseDto.builder()
                 .categoryId(category.getCategoryId())
@@ -160,6 +236,13 @@ public class CategoryService {
                 .build();
     }
 
+
+    /**
+     * Category -> CategoryDeleteResponseDto 변환
+     *
+     * @param category 변환할 카테고리 엔티티
+     * @return 삭제된 카테고리 정보 담은 Dto
+     */
     private CategoryDeleteResponseDto convertToCategoryDeleteResponseDto(Category category) {
         return CategoryDeleteResponseDto.builder()
                 .categoryId(category.getCategoryId())
