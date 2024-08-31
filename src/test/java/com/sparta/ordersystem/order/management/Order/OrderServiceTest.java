@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Order;
 
+import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
@@ -12,6 +13,7 @@ import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
+import com.sparta.ordersystem.order.management.Region.entity.Region;
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.Store.repository.StoreRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
@@ -86,16 +88,17 @@ class OrderServiceTest {
         // given
         UUID menuId1 = UUID.randomUUID();
         UUID menuId2 = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
                 .menu_ids(Arrays.asList(menuId1, menuId2))
                 .build();
 
-        UUID storeId = UUID.randomUUID();
-        Store store = Store.builder()
-                .build();
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
 
         given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
-        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId1,storeId)).willReturn(Optional.empty());
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId1,store.getStoreId())).willReturn(Optional.empty());
 
         // when
         Exception exception = assertThrows(MenuNotFoundException.class,
@@ -107,25 +110,83 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("대면 주문 시 사장님이 아닌 사용자가 주문을 시도할 때 에러 발생")
+    void testErrorCreateOrderByNonOwnerUser() {
+        // given
+        UUID storeId = UUID.randomUUID();
+
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
+
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
+                .orderType(OrderType.IN_PERSON)
+                .build();
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+        // when
+        Exception exception = assertThrows(AccessDeniedException.class, () -> {
+            orderService.createOrder(requestDto, user);
+        });
+
+        // then
+        assertEquals("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("대면 주문 시 다른 가게의 사장님이 주문을 시도할 때 에러 발생")
+    void testErrorCreateOrderByNonStoreOwnerUser() {
+        // given
+        UUID storeId = UUID.randomUUID();
+
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
+                .orderType(OrderType.IN_PERSON)
+                .build();
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+        // when
+        Exception exception = assertThrows(AccessDeniedException.class, () -> {
+            orderService.createOrder(requestDto, user);
+        });
+
+        // then
+        assertEquals("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.", exception.getMessage());
+    }
+
+    @Test
     @DisplayName("주문 등록 성공 케이스")
     void testSuccessCreateOrder(){
         // given
         UUID menuId1 = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
                 .menu_ids(Arrays.asList(menuId1))
                 .build();
 
-        Menu menu = Menu.builder()
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+        Menu menu1 = Menu.builder()
                 .menuId(menuId1)
                 .build();
-        Store store = Store.builder()
-                .build();
-        UUID storeId = UUID.randomUUID();
+
 
         given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
-        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId1,storeId)).willReturn(Optional.of(menu));
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(requestDto.getMenu_ids().get(0), store.getStoreId())).willReturn(Optional.of(menu1));
+        given(orderRepository.save(any(Order.class))).willReturn(new Order());
 
-        orderService.createOrder(requestDto,userDetails.getUser());
+        orderService.createOrder(requestDto,user);
         // then
         verify(orderRepository, times(1)).save(any(Order.class));
     }
