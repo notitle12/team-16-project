@@ -93,7 +93,7 @@ public class DeliveryService {
                 .order_id(delivery.getOrder().getOrderId())
                 .created_at(delivery.getCreated_at())
                 .updated_at(delivery.getUpdated_at())
-                .is_active(delivery.getIsActive())
+                .isActive(delivery.getIsActive())
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.Menu.entity;
 
 import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,8 +31,10 @@ public class Menu extends Timestamped{
     )
     @Column(name = "menu_id")
     private UUID menuId;
-    @Column(name = "store_id")
-    private UUID storeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     private String menu_name;
 
@@ -41,7 +44,7 @@ public class Menu extends Timestamped{
 
     @Builder.Default
     @Column(name = "is_active")
-    private boolean isActive = true;
+    private Boolean isActive = true;
 
     @OneToMany(mappedBy = "menu")
     private List<OrderMenu> orderMenuList = new ArrayList<>();
@@ -55,5 +58,9 @@ public class Menu extends Timestamped{
         this.cost = updateRequestDto.getCost();
         this.content = updateRequestDto.getContent();
 
+    }
+
+    public void addStore(Store store) {
+        this.store = store;
     }
 }

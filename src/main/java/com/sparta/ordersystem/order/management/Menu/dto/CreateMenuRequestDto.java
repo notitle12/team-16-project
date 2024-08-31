@@ -22,7 +22,6 @@ public class CreateMenuRequestDto {
     public static Menu toEntity(CreateMenuRequestDto requestDto){
         Menu menu = Menu.builder()
                 .menu_name(requestDto.getMenu_name())
-                .storeId(requestDto.getStore_id())
                 .cost(requestDto.getCost())
                 .content(requestDto.getContent())
                 .isActive(true)

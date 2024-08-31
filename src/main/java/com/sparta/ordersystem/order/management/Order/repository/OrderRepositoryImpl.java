@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Order.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,9 +11,12 @@ import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.entity.QOrder;
 import com.sparta.ordersystem.order.management.OrderMenu.QOrderMenu;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +28,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderRepositoryImpl.class);
     private final JPAQueryFactory queryFactory;
-
 
     @Override
     public Page<OrderResponseDto> searchOrders(OrderSearchDto searchDto,Pageable pageable, User user) {
@@ -34,6 +38,18 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
         QOrderMenu qOrderMenu = QOrderMenu.orderMenu;
         UserRoleEnum role = user.getRole();
 
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 공통 검색 조건 적용
+        if(searchDto.getIsActive() != null)
+        {
+            builder.and(qOrder.isActive.eq(searchDto.getIsActive()));
+        }
+
+        if (searchDto.getOrderStatus() != null) {
+            builder.and(qOrder.orderStatus.eq(searchDto.getOrderStatus()));
+        }
+
         JPAQuery<Order> query = queryFactory.selectFrom(qOrder)
                 .leftJoin(qOrder.orderMenuList,qOrderMenu).fetchJoin()
                 .leftJoin(qOrderMenu.menu,qMenu).fetchJoin()
@@ -41,18 +57,20 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
                         qOrder.created_at.desc(),
                         qOrder.updated_at.desc()
                 )
+                .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
-        /*
+
         //고객인 경우 : 자신의 주문내역만 조회
         if(UserRoleEnum.CUSTOMER.equals(role)){
-            query.where(qOrder.user.id.eq(user.getId()));
+            query.where(qOrder.user.user_id.eq(user.getUser_id()));
         }
         //사장님인 경우 : 가게 주문내역들 조회
         else if (UserRoleEnum.OWNER.equals(role))
         {
-            //TODO : user 안에 store_id와 menu_id를 이용하여 가게들의 주문 내역 추출
-
+            List<UUID> storeIds = user.getStores().stream().map(
+                    Store::getStoreId).toList();
+            query.where(qOrder.order.store.storeId.in(storeIds));
         }else if(UserRoleEnum.MANAGER.equals(role) || UserRoleEnum.MASTER.equals(role))
         {//모든 권한을 가짐.
 
@@ -60,7 +78,6 @@ public class OrderRepositoryImpl implements OrderRepsoitoryCustom {
             throw new AccessDeniedException("권한이 없습니다.");
         }
 
-        */
 
         QueryResults<Order> results = query.fetchResults();
 

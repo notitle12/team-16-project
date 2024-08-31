@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.Order.entity;
 
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.OrderMenu.OrderMenu;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
@@ -43,8 +44,9 @@ public class Order extends Timestamped {
     OrderType orderType;//
 
     //가게 id
-    @Column(name ="store_id")
-    UUID storeId;
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @JoinColumn(name = "store_id")
+    Store store;
 
     @Column(nullable = false, name = "is_active")
     @Builder.Default

@@ -14,11 +14,11 @@ public class DeliveryResponseDto {
     String address;
     String requset_note;
     UUID order_id;
-    boolean is_active;
+    boolean isActive;
     LocalDateTime created_at;
     LocalDateTime updated_at;
 
     public boolean getIsActive(){
-        return this.is_active;
+        return this.isActive;
     }
 }

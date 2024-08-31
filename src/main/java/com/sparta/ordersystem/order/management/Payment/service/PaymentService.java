@@ -10,8 +10,10 @@ import com.sparta.ordersystem.order.management.Payment.entity.Payment;
 import com.sparta.ordersystem.order.management.Payment.exception.PaymentNotFoundException;
 import com.sparta.ordersystem.order.management.Payment.repository.PaymentRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,8 +69,22 @@ public class PaymentService {
                 .build();
     }
 
+    /***
+     * 결제 상태 변경
+     * 고객인 경우 접근을 하지 못한다.
+     * @param paymentId
+     * @param requestDto
+     * @param user
+     */
     @Transactional
-    public void updatePaymentStatus(UUID paymentId, UpdateStatusRequestDto requestDto) {
+    public void updatePaymentStatus(UUID paymentId, UpdateStatusRequestDto requestDto,User user) {
+
+        //고객인 경우 : 결제 상태를 수정하지 못한다.
+        if(UserRoleEnum.CUSTOMER.equals(user.getRole()))
+        {
+            throw new AccessDeniedException("고객은 결제 상태를 수정하지 못합니다.");
+        }
+
         Payment payment = paymentRepository.findById(paymentId).orElseThrow(
                 () -> new PaymentNotFoundException(
                         messageSource.getMessage("not.found.payment.id",new UUID[]{paymentId},
@@ -88,6 +104,7 @@ public class PaymentService {
      * @param user
      * @return
      */
+    @Transactional(readOnly = true)
     public List<PaymentResponseDto> getAllPaymentsByUserId(User user) {
         List<PaymentResponseDto> responseDtoList =  paymentRepository.getAllPaymentsByUserId(user.getUser_id());
 

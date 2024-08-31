@@ -2,6 +2,7 @@ package com.sparta.ordersystem.order.management.Order.controller;
 
 import com.sparta.ordersystem.order.management.Order.dto.OrderSearchDto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
+import com.sparta.ordersystem.order.management.Order.entity.OrderStatus;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.dto.UpdateOrderStateRequestDto;
@@ -69,9 +70,10 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<?> getAllOrders(@PageableDefault(size = 10) Pageable pageable,
                                           @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                          @RequestBody OrderSearchDto searchDto) {
+                                          @RequestParam Boolean isActive,
+                                          @RequestParam OrderStatus orderStatus) {
 
-        return ResponseEntity.ok().body(orderService.getAllOrders(searchDto,pageable,userDetails.getUser()));
+        return ResponseEntity.ok().body(orderService.getAllOrders(isActive,orderStatus,pageable,userDetails.getUser()));
     }
 
     /***

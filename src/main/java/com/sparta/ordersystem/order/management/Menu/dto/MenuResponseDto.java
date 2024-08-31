@@ -14,7 +14,7 @@ public class MenuResponseDto {
     String menu_name;
     String content;
     Integer cost;
-    boolean is_active;
+    Boolean is_active;
     LocalDateTime created_at;
     LocalDateTime updated_at;
 }
