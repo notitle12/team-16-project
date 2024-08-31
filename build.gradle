@@ -39,7 +39,7 @@ dependencies{
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // 초기 의존성
-    implementation 'io.jsonwebtoken:jjwt:0.12.6'
+    //implementation 'io.jsonwebtoken:jjwt:0.12.6'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-security'
