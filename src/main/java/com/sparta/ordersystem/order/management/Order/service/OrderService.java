@@ -1,6 +1,7 @@
 package com.sparta.ordersystem.order.management.Order.service;
 
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderSearchDto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
@@ -9,7 +10,10 @@ import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.entity.OrderType;
 import com.sparta.ordersystem.order.management.Order.exception.OrderCancelException;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.Store.repository.StoreRepository;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
@@ -33,39 +37,39 @@ public class OrderService {
 
     private final MenuRepository menuRepository;
     private final MessageSource messageSource;
+    private final StoreRepository storeRepository;
 
     /**
      * 주문을 등록해주는 메소드
      * 대면 주문 처리: 가게 사장님이 직접 대면 주문을 접수
-     * TODO : 주문에 가게 id가 연결되어야 될거같다.
-     * 어떤 고객이 어디 가게에서 주문을 했는지 알아야되는데 주문에 메뉴가 있다?
-     * 가게를 알기 위해서는 고객 -> 주문 -> 메뉴 -> 가게로 가야된다.
-     * 조인을 많이 하면 할 수록 성능저하
      * @param requestDto
      */
     @Transactional
     public void createOrder(CreateOrderRequestDto requestDto, User user) {
 
+        UUID storeId = requestDto.getStore_id();
+
+        Store store = storeRepository.findById(storeId).orElseThrow(
+                () -> new IllegalArgumentException("Store with id " + storeId + " not found")
+        );
+
         //대면 주문인 경우
         if(OrderType.IN_PERSON.equals(requestDto.getOrderType()))
         {
-            //TODO : 가게 id 존재하는지 검증 로직 추가
-
-            //사장님인지 검증
-            if(!UserRoleEnum.OWNER.equals(user.getRole()))
+            //해당 가게의 사장님인지 검증
+            if(!UserRoleEnum.OWNER.equals(user.getRole()) || !store.getUser().getUser_id().equals(user.getUser_id()))
             {
                 throw new AccessDeniedException("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.");
             }
-
         }
 
-        Order order = requestDto.toEntity(user);
+        Order order = requestDto.toEntity(user,store);
 
-        //주문하려고하는 메뉴들이 존재하는지 검증
+        //주문하려고하는 메뉴들이 가게에 존재하는 지 검증
         for(UUID menuId : requestDto.getMenu_ids())
         {
-            Menu menu = menuRepository.findById(menuId).orElseThrow(
-                    ()-> new IllegalArgumentException("Menu" + menuId + "does not exist")
+            Menu menu = menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId,store.getStoreId()).orElseThrow(
+                    ()-> new MenuNotFoundException("Menu" + menuId + "does not exist")
             );
 
             order.addMenu(menu);
@@ -73,7 +77,6 @@ public class OrderService {
 
         orderRepository.save(order);
     }
-
 
 
     /***
@@ -86,8 +89,7 @@ public class OrderService {
     public Order updateOrderState(OrderStatus orderStatus, UUID orderId, User user) {
         //존재하는 주문인지 검증
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 주문입니다."));
-
+                .orElseThrow(()->new OrderNotFoundException("존재하지 않는 주문입니다."));
 
         //주문 취소인 경우
         if(OrderStatus.CANCEL.equals(orderStatus))
@@ -122,9 +124,9 @@ public class OrderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public Page<OrderResponseDto> getAllOrders(OrderSearchDto searchDto,Pageable pageable, User user) {
-
-        return orderRepository.searchOrders(searchDto,pageable,user);
+    public Page<OrderResponseDto> getAllOrders(Boolean isActive, OrderStatus status,Pageable pageable, User user) {
+        OrderSearchDto orderSearchDto = new OrderSearchDto(status,isActive);
+        return orderRepository.searchOrders(orderSearchDto,pageable,user);
     }
 
     /***
@@ -136,7 +138,7 @@ public class OrderService {
     public Order deleteOrder(UUID orderId) {
 
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 주문 ID입니다.")
+                () -> new OrderNotFoundException("존재하지 않는 주문 ID입니다.")
         );
 
         order.deleteOrder();
@@ -154,7 +156,7 @@ public class OrderService {
 
         //주문 아이디 존재 검증
         Order order = orderRepository.findByOrderIdAndIsActiveTrue(orderId).orElseThrow(
-                () -> new IllegalArgumentException(
+                () -> new OrderNotFoundException(
                         messageSource.getMessage("not.found.order.id",new UUID[]{orderId},"존재하지 않는 주문 ID",
                                 Locale.getDefault())
                 )

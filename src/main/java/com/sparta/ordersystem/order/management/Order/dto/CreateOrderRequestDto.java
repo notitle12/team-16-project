@@ -3,6 +3,7 @@ package com.sparta.ordersystem.order.management.Order.dto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.entity.OrderStatus;
 import com.sparta.ordersystem.order.management.Order.entity.OrderType;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.User.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,11 +22,11 @@ public class CreateOrderRequestDto {
     List<UUID> menu_ids;
     UUID store_id;
 
-    public Order toEntity(User user) {
+    public Order toEntity(User user, Store store) {
         return Order.builder()
                 .user(user)
-                .storeId(store_id)
                 .orderType(orderType)
+                .store(store)
                 .orderStatus(OrderStatus.CREATE)
                 .build();
     }

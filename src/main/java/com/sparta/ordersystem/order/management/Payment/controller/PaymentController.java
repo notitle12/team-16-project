@@ -40,8 +40,9 @@ public class PaymentController {
 
     @PatchMapping("{payment_id}")
     public ResponseEntity<?> updatePaymentStatus(@PathVariable UUID payment_id,
-                                                 @RequestBody UpdateStatusRequestDto requestDto){
-        paymentService.updatePaymentStatus(payment_id,requestDto);
+                                                 @RequestBody UpdateStatusRequestDto requestDto,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails){
+        paymentService.updatePaymentStatus(payment_id,requestDto,userDetails.getUser());
         return ResponseEntity.ok().body("결제 상태가 "+ requestDto.getPaymentStatus() + "로 수정되었습니다.");
     }
 

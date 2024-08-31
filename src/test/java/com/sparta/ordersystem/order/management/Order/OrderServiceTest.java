@@ -1,14 +1,23 @@
 package com.sparta.ordersystem.order.management.Order;
 
+import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
+import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
 import com.sparta.ordersystem.order.management.Order.dto.OrderMenuDto;
 import com.sparta.ordersystem.order.management.Order.dto.OrderResponseDto;
 import com.sparta.ordersystem.order.management.Order.dto.CreateOrderRequestDto;
 import com.sparta.ordersystem.order.management.Order.entity.Order;
 import com.sparta.ordersystem.order.management.Order.entity.OrderStatus;
+import com.sparta.ordersystem.order.management.Order.entity.OrderType;
+import com.sparta.ordersystem.order.management.Order.exception.OrderNotFoundException;
 import com.sparta.ordersystem.order.management.Order.repository.OrderRepository;
 import com.sparta.ordersystem.order.management.Order.service.OrderService;
+import com.sparta.ordersystem.order.management.Region.entity.Region;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.Store.repository.StoreRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import com.sparta.ordersystem.order.management.User.security.UserDetailsImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,8 +52,35 @@ class OrderServiceTest {
     @Mock
     private UserDetailsImpl userDetails;
 
+    @Mock
+    private StoreRepository storeRepository;
+
     @InjectMocks
     OrderService orderService;
+
+    @Test
+    @DisplayName("주문 등록 시 존재하지 않는 가게 ID - 실패케이스")
+    void testErrorCreateOrderNotExistStoreId(){
+        // given
+        UUID menuId1 = UUID.randomUUID();
+        UUID menuId2 = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
+                .menu_ids(Arrays.asList(menuId1, menuId2))
+                .build();
+
+        given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.empty());
+
+        // when
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> orderService.createOrder(requestDto,userDetails.getUser())
+        );
+
+        // then
+        assertEquals(exception.getMessage(),"Store with id " + storeId + " not found");
+    }
 
     @Test
     @DisplayName("주문 등록 시 존재하지 않는 메뉴로 인한 에러")
@@ -51,14 +88,20 @@ class OrderServiceTest {
         // given
         UUID menuId1 = UUID.randomUUID();
         UUID menuId2 = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
                 .menu_ids(Arrays.asList(menuId1, menuId2))
                 .build();
 
-        given(menuRepository.findById(menuId1)).willReturn(Optional.empty());
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+
+        given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId1,store.getStoreId())).willReturn(Optional.empty());
 
         // when
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(MenuNotFoundException.class,
                 () -> orderService.createOrder(requestDto,userDetails.getUser())
         );
 
@@ -67,21 +110,83 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("대면 주문 시 사장님이 아닌 사용자가 주문을 시도할 때 에러 발생")
+    void testErrorCreateOrderByNonOwnerUser() {
+        // given
+        UUID storeId = UUID.randomUUID();
+
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
+
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
+                .orderType(OrderType.IN_PERSON)
+                .build();
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+        // when
+        Exception exception = assertThrows(AccessDeniedException.class, () -> {
+            orderService.createOrder(requestDto, user);
+        });
+
+        // then
+        assertEquals("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("대면 주문 시 다른 가게의 사장님이 주문을 시도할 때 에러 발생")
+    void testErrorCreateOrderByNonStoreOwnerUser() {
+        // given
+        UUID storeId = UUID.randomUUID();
+
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
+        CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
+                .orderType(OrderType.IN_PERSON)
+                .build();
+
+        given(storeRepository.findById(storeId)).willReturn(Optional.of(store));
+
+        // when
+        Exception exception = assertThrows(AccessDeniedException.class, () -> {
+            orderService.createOrder(requestDto, user);
+        });
+
+        // then
+        assertEquals("대면 주문은 해당 가게의 사장님만 접수할 수 있습니다.", exception.getMessage());
+    }
+
+    @Test
     @DisplayName("주문 등록 성공 케이스")
     void testSuccessCreateOrder(){
         // given
         UUID menuId1 = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+
+        User user = new User("testUser","!Passwrod123","test@test.com",UserRoleEnum.CUSTOMER);
+
         CreateOrderRequestDto requestDto = CreateOrderRequestDto.builder()
+                .store_id(storeId)
                 .menu_ids(Arrays.asList(menuId1))
                 .build();
 
-        Menu menu = Menu.builder()
+        Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
+        Menu menu1 = Menu.builder()
                 .menuId(menuId1)
                 .build();
 
-        given(menuRepository.findById(menuId1)).willReturn(Optional.of(menu));
 
-        orderService.createOrder(requestDto,userDetails.getUser());
+        given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(requestDto.getMenu_ids().get(0), store.getStoreId())).willReturn(Optional.of(menu1));
+        given(orderRepository.save(any(Order.class))).willReturn(new Order());
+
+        orderService.createOrder(requestDto,user);
         // then
         verify(orderRepository, times(1)).save(any(Order.class));
     }
@@ -94,7 +199,7 @@ class OrderServiceTest {
 
         given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(OrderNotFoundException.class,
                 () -> orderService.updateOrderState(OrderStatus.RUNNING, orderId,userDetails.getUser())
         );
 
@@ -122,43 +227,13 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("search조회기능 테스트코드")
-    void testSearchOrders(){
-        // Given
-        Pageable pageable = PageRequest.of(0, 10); // 첫 번째 페이지, 페이지당 10개 항목
-        OrderResponseDto orderDto = OrderResponseDto.builder()
-                .order_id(UUID.randomUUID())
-                .user_id(1L)
-                .state(OrderStatus.CREATE)
-                .order_menu(List.of(OrderMenuDto.builder()
-                                .menu_id(UUID.randomUUID())
-                                .menu_name("MENU_TEST")
-                                .content("TEST")
-                                .cost(1000)
-                        .build()))
-                        .build();
-
-        Page<OrderResponseDto> expectedPage = new PageImpl<>(List.of(orderDto), pageable, 1);
-
-        //given(orderRepository.searchOrders(pageable,userDetails.getUser())).willReturn(expectedPage);
-
-        // When
-        //Page<OrderResponseDto> result = orderService.getAllOrders(pageable,userDetails.getUser());
-
-        // Then
-        //assertEquals(expectedPage.getContent().size(), result.getContent().size());
-        //assertEquals(expectedPage.getContent().get(0).getOrder_id(), result.getContent().get(0).getOrder_id());
-        //assertEquals(expectedPage.getContent().get(0).getOrder_menu().get(0).getMenu_name(), result.getContent().get(0).getOrder_menu().get(0).getMenu_name());
-    }
-
-    @Test
     @DisplayName("주문 삭제 시 존재하지 않은 주문 ID로 실패케이스")
     void testErrorDeleteOrderIdNotExistOrderId(){
         UUID orderId = UUID.randomUUID();
 
         given(orderRepository.findByOrderIdAndIsActiveTrue(orderId)).willReturn(Optional.empty());
 
-        Exception thrown = assertThrows(IllegalArgumentException.class,
+        Exception thrown = assertThrows(OrderNotFoundException.class,
             () -> orderService.deleteOrder(orderId)
         );
 
