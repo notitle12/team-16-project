@@ -124,9 +124,9 @@ public class OrderService {
      * @return
      */
     @Transactional(readOnly = true)
-    public Page<OrderResponseDto> getAllOrders(OrderSearchDto searchDto,Pageable pageable, User user) {
-
-        return orderRepository.searchOrders(searchDto,pageable,user);
+    public Page<OrderResponseDto> getAllOrders(Boolean isActive, OrderStatus status,Pageable pageable, User user) {
+        OrderSearchDto orderSearchDto = new OrderSearchDto(status,isActive);
+        return orderRepository.searchOrders(orderSearchDto,pageable,user);
     }
 
     /***
