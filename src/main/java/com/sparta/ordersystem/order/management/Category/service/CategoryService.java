@@ -190,7 +190,7 @@ public class CategoryService {
      * @param categoryName 중복 체크할 카테고리 명
      */
     private void checkDuplicateByCategoryName(String categoryName){
-        if (categoryRepository.existsByCategoryNameAndIsActive(categoryName)) {
+        if (categoryRepository.existsByCategoryNameAndIsActiveTrue(categoryName)) {
             throw new IllegalArgumentException(messageSource.getMessage(
                     "error.duplicate.item",
                     new String[]{CATEGORY,CATEGORY_NAME,categoryName},
