@@ -68,7 +68,7 @@ public class OrderService {
         //주문하려고하는 메뉴들이 가게에 존재하는 지 검증
         for(UUID menuId : requestDto.getMenu_ids())
         {
-            Menu menu = menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId,store.getStoreId()).orElseThrow(
+            Menu menu = menuRepository.findByMenuIdAndIsActiveTrueAndStore(menuId,store).orElseThrow(
                     ()-> new MenuNotFoundException("Menu" + menuId + "does not exist")
             );
 

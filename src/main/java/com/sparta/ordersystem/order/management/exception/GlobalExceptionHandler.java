@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<RestApiException> AccessDeniedExceptionHandler(AccessDeniedException ex) {
-        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.NOT_FOUND.value());
+        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.FORBIDDEN.value());
         return new ResponseEntity<>(
                 // HTTP body
                 restApiException,

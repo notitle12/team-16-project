@@ -98,7 +98,7 @@ class OrderServiceTest {
         Store store = new Store("testStore",new Category("test"),new Region("test"),new User());
 
         given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
-        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(menuId1,store.getStoreId())).willReturn(Optional.empty());
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStore(menuId1,store)).willReturn(Optional.empty());
 
         // when
         Exception exception = assertThrows(MenuNotFoundException.class,
@@ -183,7 +183,7 @@ class OrderServiceTest {
 
 
         given(storeRepository.findById(requestDto.getStore_id())).willReturn(Optional.of(store));
-        given(menuRepository.findByMenuIdAndIsActiveTrueAndStoreId(requestDto.getMenu_ids().get(0), store.getStoreId())).willReturn(Optional.of(menu1));
+        given(menuRepository.findByMenuIdAndIsActiveTrueAndStore(requestDto.getMenu_ids().get(0), store)).willReturn(Optional.of(menu1));
         given(orderRepository.save(any(Order.class))).willReturn(new Order());
 
         orderService.createOrder(requestDto,user);

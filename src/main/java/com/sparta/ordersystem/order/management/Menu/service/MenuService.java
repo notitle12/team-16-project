@@ -6,8 +6,13 @@ import com.sparta.ordersystem.order.management.Menu.dto.UpdateRequestDto;
 import com.sparta.ordersystem.order.management.Menu.entity.Menu;
 import com.sparta.ordersystem.order.management.Menu.exception.MenuNotFoundException;
 import com.sparta.ordersystem.order.management.Menu.repository.MenuRepository;
+import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.Store.repository.StoreRepository;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,19 +26,29 @@ public class MenuService {
 
     private final MenuRepository menuRepository;
     private final MessageSource messageSource;
+    private final StoreRepository storeRepository;
 
     /***
      * 메뉴 등록
-     * TODO 08.27 : 가게 ID 존재 검증 추가
+     * 로그인한 사용자가 고객인 경우 등록 제한
+     * 가게 사장님인 경우 자신의 가게에만 등록 가능
      * @param requestDto
      * @return
      */
     @Transactional
-    public Menu createMenu(CreateMenuRequestDto requestDto) {
+    public Menu createMenu(CreateMenuRequestDto requestDto, User user) {
+
+        isCustomer(user.getRole());
 
         UUID storeId = requestDto.getStore_id();
 
+        Store store = isExistedStore(storeId);
+
+        isEqualsYourStore(user,store);
+
         Menu menu = CreateMenuRequestDto.toEntity(requestDto);
+
+        menu.addStore(store);
 
         return menuRepository.save(menu);
     }
@@ -43,12 +58,16 @@ public class MenuService {
      * @param menuId
      */
     @Transactional
-    public void deleteMenu(UUID menuId) {
+    public void deleteMenu(UUID menuId, User user) {
+
+        isCustomer(user.getRole());
 
         Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
                 () -> new MenuNotFoundException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
                         Locale.getDefault()))
         );
+
+        isEqualsYourStore(user,menu.getStore());
 
         menu.deleteMenu();
 
@@ -57,14 +76,18 @@ public class MenuService {
 
     /***
      * 메뉴의 정보를 수정(바꾸려고하는 전체의 정보를 담고있다)
-     * TODO : 1. 가게가 존재하는지 판단 후 가게에 메뉴가 있는 지 판단
-     *
      * @param updateRequestDto
      * @param menuId
      * @return
      */
     @Transactional
-    public MenuResponseDto updateMenu(UpdateRequestDto updateRequestDto,UUID menuId) {
+    public MenuResponseDto updateMenu(UpdateRequestDto updateRequestDto,UUID menuId,User user) {
+
+        isCustomer(user.getRole());
+
+        Store store = isExistedStore(updateRequestDto.getStore_id());
+
+        isEqualsYourStore(user,store);
 
         Menu menu = menuRepository.findByMenuIdAndIsActiveTrue(menuId).orElseThrow(
                 () -> new MenuNotFoundException(messageSource.getMessage("not.found.menu.id",new UUID[]{menuId},"존재하지 않는 메뉴 ID",
@@ -81,16 +104,67 @@ public class MenuService {
 
     /***
      * 가게에 있는 모든 메뉴들을 조회
-     * TODO: 가게가 존재하는지 검증 추가
      * @param storeId
      * @return
      */
     public List<MenuResponseDto> getAllMenus(UUID storeId) {
 
-        List<Menu> menuList = menuRepository.findByStoreIdAndIsActiveTrue(storeId);
+        Store store = isExistedStore(storeId);
+
+        List<Menu> menuList = menuRepository.findByStoreAndIsActiveTrue(store);
 
         return menuList.stream().map(this::convertMenuToResponseDto).toList();
 
+    }
+
+    /***
+     * 가게의 존재여부 검증하는 로직
+     * @param storeId
+     * @return
+     */
+    private Store isExistedStore(UUID storeId) {
+
+        return storeRepository.findById(storeId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 가게 ID입니다.")
+        );
+    }
+
+    /***
+     * 가게 사장님인 경우 자신의 가게의 주인인지 판별
+     *
+     */
+    private void isEqualsYourStore(User user,Store store)
+    {
+        UserRoleEnum role = user.getRole();
+
+        //가게 사장님 && 해당 가게의 사장님인 경우
+        if(UserRoleEnum.OWNER.equals(role))
+        {
+            boolean result = user.getStores().stream().anyMatch(
+                    storeItem -> storeItem.getStoreId().equals(store.getStoreId())
+            );
+
+            if(result == false)
+            {
+                throw new AccessDeniedException("자기 자신의 가게에만 접근 할수 있습니다.");
+            }
+
+        }else if(UserRoleEnum.MASTER.equals(role))
+        {
+
+        }else {
+            throw new AccessDeniedException("해당 가게 사장님만 접근할 수 있습니다");
+        }
+    }
+    /***
+     * 로그인한 사용자가 고객인지 검증
+     * @param role
+     */
+    private void isCustomer(UserRoleEnum role){
+        if(UserRoleEnum.CUSTOMER.equals(role))
+        {
+            throw new AccessDeniedException("고객은 메뉴를 등록할 권한이 없습니다.");
+        }
     }
 
     /***
@@ -102,12 +176,12 @@ public class MenuService {
         return MenuResponseDto.builder()
                 .menu_id(menu.getMenuId())
                 .menu_name(menu.getMenu_name())
-                .store_id(menu.getStoreId())
+                .store_id(menu.getStore().getStoreId())
                 .created_at(menu.getCreated_at())
                 .updated_at(menu.getUpdated_at())
                 .content(menu.getContent())
                 .cost(menu.getCost())
-                .is_active(menu.isActive())
+                .is_active(menu.getIsActive())
                 .build();
     }
 }
