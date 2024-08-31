@@ -10,9 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
-/***
- * @Created_by ,LastModifiedBy 의 값을 자동으로 설정해주기 위함
- ***/
 @Component
 public class LoginUserAuditorAwareImpl implements AuditorAware<Long> {
 
