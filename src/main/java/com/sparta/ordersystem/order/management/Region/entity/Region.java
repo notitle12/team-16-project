@@ -1,11 +1,9 @@
 package com.sparta.ordersystem.order.management.Region.entity;
 
 import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
@@ -16,7 +14,7 @@ import java.util.UUID;
 @Table(name="p_region")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Region {
+public class Region extends Timestamped {
 
     @Id
     @Column(name="region_id")
@@ -30,6 +28,7 @@ public class Region {
     private boolean isActive;
 
     @OneToMany(mappedBy = "region")
+    @ToString.Exclude
     private List<Store> stores  = new ArrayList<>();
 
     @Builder
