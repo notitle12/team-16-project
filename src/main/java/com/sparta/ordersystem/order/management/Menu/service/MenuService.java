@@ -140,9 +140,15 @@ public class MenuService {
         //가게 사장님 && 해당 가게의 사장님인 경우
         if(UserRoleEnum.OWNER.equals(role))
         {
-            boolean result = user.getStores().stream().anyMatch(
-                    storeItem -> storeItem.getStoreId().equals(store.getStoreId())
-            );
+            boolean result = false;
+            if(user.getStores() == null)
+            {
+                result = false;
+            }else {
+                result = user.getStores().stream().anyMatch(
+                        storeItem -> storeItem.getStoreId().equals(store.getStoreId())
+                );
+            }
 
             if(result == false)
             {
