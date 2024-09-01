@@ -132,7 +132,7 @@ public class CategoryService {
         checkManagerOrMaster(userRoleEnum,action);
 
         Category category  = findCategoryById(categoryId);
-        category.softDeleted();
+        category.softDeleted(user.getUser_id());
 
         return convertToCategoryDeleteResponseDto(category);
     }

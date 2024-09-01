@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,7 +45,9 @@ public class Category extends Timestamped {
         this.categoryName = categoryName;
     }
 
-    public void softDeleted(){
+    public void softDeleted(Long userId){
         this.isActive = false;
+        this.deleted_at = LocalDateTime.now();
+        this.deleted_by = userId;
     }
 }

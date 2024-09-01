@@ -132,7 +132,7 @@ public class RegionService {
         checkManagerOrMaster(userRoleEnum,action);
 
         Region region  = findRegionById(regionId);
-        region.softDeleted();
+        region.softDeleted(user.getUser_id());
 
         return convertToRegionDeleteResponseDto(region);
     }
