@@ -2,20 +2,36 @@ package com.sparta.ordersystem.order.management.Category;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.ordersystem.order.management.Category.dto.*;
+import com.sparta.ordersystem.order.management.Category.entity.Category;
+import com.sparta.ordersystem.order.management.Category.repository.CategoryRepository;
 import com.sparta.ordersystem.order.management.User.dto.LoginRequestDto;
 import com.sparta.ordersystem.order.management.User.dto.SignUpRequestDto;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.repository.UserRepository;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +50,9 @@ class CategoryServiceIntegrationTest {
     // json 객체 변환을 위한 객체
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     // 회원 가입
@@ -84,7 +103,6 @@ class CategoryServiceIntegrationTest {
                         .content(objectMapper.writeValueAsString(customerDto)))
                 .andExpect(status().isOk());
 
-
     }
 
     //로그인 테스트 코드
@@ -123,6 +141,8 @@ class CategoryServiceIntegrationTest {
             //생성할 카테고리 객체
             CategoryCreateRequestDto createDto = new CategoryCreateRequestDto(categoryName);
 
+            User user = userRepository.findByEmail("master2@test.com").get();
+
             // when - then
             mockMvc.perform(post("/api/v1/category")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +150,9 @@ class CategoryServiceIntegrationTest {
                         .header("Authorization",jwtToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(categoryName))
-                    .andExpect(jsonPath("$.categoryId").exists());
+                    .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(user.getUser_id()));
 
         }
 
@@ -242,6 +264,8 @@ class CategoryServiceIntegrationTest {
             //수정할 카테고리 객체
             CategoryUpdateRequestDto updateReqDto = new CategoryUpdateRequestDto(updateCategoryName);
 
+            User user = userRepository.findByEmail("master2@test.com").get();
+
 
             // when - then
             // 카테고리 생성
@@ -252,6 +276,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(user.getUser_id()))
                     .andReturn();
 
             // 생성된 카테고리 ID 가져오기
@@ -266,7 +292,10 @@ class CategoryServiceIntegrationTest {
                     .header("Authorization",jwtToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(updateCategoryName))
-                    .andExpect(jsonPath("$.categoryId").value(updateCategoryId.toString()));
+                    .andExpect(jsonPath("$.categoryId").value(updateCategoryId.toString()))
+                    .andExpect(jsonPath("$.updatedAt").exists())
+                    .andExpect(jsonPath("$.updatedBy").value(user.getUser_id()));
+
 
 
         }
@@ -305,6 +334,7 @@ class CategoryServiceIntegrationTest {
             // 에러 발생 시 출력되어야 하는 에러 코드
             int statusCode = 403;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // when - then
             // 카테고리 생성
@@ -315,6 +345,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 카테고리 ID 가져오기
@@ -372,6 +404,7 @@ class CategoryServiceIntegrationTest {
             //에러 코드
             int statusCode = 400;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
 
             //when - then
@@ -381,7 +414,9 @@ class CategoryServiceIntegrationTest {
                             .content(objectMapper.writeValueAsString(oneCreateReqDto))
                             .header("Authorization",jwtToken))
                     .andExpect(jsonPath("$.categoryName").value(oneCreateCategoryName))
-                    .andExpect(jsonPath("$.categoryId").exists());
+                    .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()));
 
             // 등록 - 양식
             MvcResult mvcResult = mockMvc.perform(post("/api/v1/category")
@@ -390,6 +425,8 @@ class CategoryServiceIntegrationTest {
                             .header("Authorization", jwtToken))
                     .andExpect(jsonPath("$.categoryName").value(twoCreateCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
 
@@ -472,6 +509,8 @@ class CategoryServiceIntegrationTest {
             //삭제할 카테고리 ID
             UUID deleteCategoryId;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
+
 
             // when - then
             // 카테고리 생성
@@ -482,6 +521,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 카테고리 ID 가져오기
@@ -496,8 +537,11 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").value(deleteCategoryId.toString()))
-                    .andExpect(jsonPath("$.active").value(false));
+                    .andExpect(jsonPath("$.active").value(false))
+                    .andExpect(jsonPath("$.deletedAt").exists())
+                    .andExpect(jsonPath("$.deletedBy").value(masterUser.getUser_id()));;
         }
+
 
 
         @Test
@@ -519,6 +563,7 @@ class CategoryServiceIntegrationTest {
             //삭제할 카테고리 ID
             UUID deleteCategoryId;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // 에러 발생 시 출력되어야 하는 에러 메시지
             /*
@@ -539,6 +584,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 카테고리 ID 가져오기
@@ -554,6 +601,7 @@ class CategoryServiceIntegrationTest {
                     .andExpect(jsonPath("$.errorMessage").value(errorMessage))
                     .andExpect(jsonPath("$.statusCode").value(statusCode));
         }
+
 
 
 
@@ -592,6 +640,14 @@ class CategoryServiceIntegrationTest {
                     .andExpect(jsonPath("$.statusCode").value(statusCode));
         }
 
+
+   /*     @Test
+        @DisplayName("MASTER가 카테고리 삭제 요청 : 카테고리 삭제했을 때 연관된 가게도 삭제되어야 함 ")
+        @Order(11)
+        void deleteCategoryCascadeStore() throws Exception{
+
+        }*/
+
     }
 
 
@@ -619,6 +675,7 @@ class CategoryServiceIntegrationTest {
             //조회할 카테고리 ID
             UUID getCategoryId;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // when - then
             // 카테고리 생성
@@ -629,6 +686,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 카테고리 ID 가져오기
@@ -673,6 +732,8 @@ class CategoryServiceIntegrationTest {
             String jwtOwnerToken = login("owner2@test.com","!Password123");          //로그인한 사용자 - owner
             String jwtCustomerToken = login("customer2@test.com","!Password123");    //로그인한 사용자 - customer
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
+
             //생성할 카테고리명 배열
             String[] createCategoryNameArr = {"한식","양식","중식"};
             int createCategoryLength = createCategoryNameArr.length;
@@ -705,6 +766,8 @@ class CategoryServiceIntegrationTest {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.categoryName").value(createCategoryNameArr[i]))
                         .andExpect(jsonPath("$.categoryId").exists())
+                        .andExpect(jsonPath("$.createdAt").exists())
+                        .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                         .andReturn();
             }
 
@@ -756,6 +819,7 @@ class CategoryServiceIntegrationTest {
 
         @DisplayName("모든 사용자가 카테고리 단건 조회 요청 : DB에 존재하지 않는 ID로 조회 요청 ")
         @Order(13)
+        @Test
         void getCategoryNullCategoryId() throws Exception{
             //given
             String jwtMasterToken = login("master2@test.com","!Password123");        //로그인한 사용자 - master
@@ -809,6 +873,7 @@ class CategoryServiceIntegrationTest {
 
         @DisplayName("모든 사용자가 카테고리 단건 조회 요청 : 삭제된 CategoryId로 조회 요청 ")
         @Order(14)
+        @Test
         void getCategoryAlreadyDeletedCategoryId() throws Exception{
             //given
             String jwtMasterToken = login("master2@test.com","!Password123");        //로그인한 사용자 - master
@@ -832,6 +897,8 @@ class CategoryServiceIntegrationTest {
             // 에러 코드
             int statusCode = 404;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
+
 
             // when - then
             // 카테고리 생성
@@ -842,6 +909,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
 
@@ -859,6 +928,8 @@ class CategoryServiceIntegrationTest {
                     .andExpect(jsonPath("$.categoryName").value(createCategoryName))
                     .andExpect(jsonPath("$.categoryId").value(deleteCategoryId.toString()))
                     .andExpect(jsonPath("$.active").value(false))
+                    .andExpect(jsonPath("$.deletedAt").exists())
+                    .andExpect(jsonPath("$.deletedBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 삭제된 카테고리 ID 가져오기
