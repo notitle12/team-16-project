@@ -49,5 +49,11 @@ public class Category extends Timestamped {
         this.isActive = false;
         this.deleted_at = LocalDateTime.now();
         this.deleted_by = userId;
+
+        if(!stores.isEmpty()) {
+            for (Store store : stores) {
+                store.softDeleted(userId);
+            }
+        }
     }
 }
