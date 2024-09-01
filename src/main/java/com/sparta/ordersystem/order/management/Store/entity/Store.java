@@ -3,18 +3,20 @@ package com.sparta.ordersystem.order.management.Store.entity;
 import com.sparta.ordersystem.order.management.Category.entity.Category;
 import com.sparta.ordersystem.order.management.Region.entity.Region;
 import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SoftDelete;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name="p_store")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Store {
+public class Store extends Timestamped {
 
     @Id
     @Column(name="store_id")
@@ -62,7 +64,9 @@ public class Store {
         this.region = region;
     }
 
-    public void softDeleted(){
+    public void softDeleted(Long userId){
         this.isActive = false;
+        this.deleted_at = LocalDateTime.now();
+        this.deleted_by = userId;
     }
 }
