@@ -145,7 +145,7 @@ public class CategoryService {
      * @return 조회한 카테고리 엔티티
      */
     private Category findCategoryById(UUID categoryId) {
-        return categoryRepository.findById(categoryId)
+        return categoryRepository.findByCategoryIdAndIsActiveTrue(categoryId)
                 .orElseThrow(() -> createNullPointerException(CATEGORY_ID, categoryId.toString()));
     }
 
@@ -212,6 +212,8 @@ public class CategoryService {
         return CategoryCreateResponseDto.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())
+                .createdAt(category.getCreated_at())
+                .createdBy(category.getCreated_by())
                 .build();
     }
 
@@ -239,6 +241,8 @@ public class CategoryService {
         return CategoryUpdateResponseDto.builder()
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())
+                .updatedAt(category.getUpdated_at())
+                .updatedBy(category.getUpdated_by())
                 .build();
     }
 
@@ -254,6 +258,8 @@ public class CategoryService {
                 .categoryId(category.getCategoryId())
                 .categoryName(category.getCategoryName())
                 .isActive(category.isActive())
+                .deletedAt(category.getDeleted_at())
+                .deletedBy(category.getDeleted_by())
                 .build();
     }
 }
