@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
@@ -163,7 +164,7 @@ public class RegionControllerIntegrationTest {
         //로그인한 사용자
         String jwtToken = login("master2@test.com","!Password123");
         //생성할 지역 값
-        String regionCreateName = "분당구";
+        String regionCreateName = "양식";
         //생성할 지역 객체
         RegionCreateRequestDto createDto = new RegionCreateRequestDto(regionCreateName);
 
@@ -175,7 +176,7 @@ public class RegionControllerIntegrationTest {
         RegionUpdateRequestDto updateDto = new RegionUpdateRequestDto(regionUpdateName);
 
         // 에러 메시지
-        String errorMessage = "지역명을 반드시 입력해주세요.";
+        String errorMessage = "regionName cannot be blank";
         // 에러 코드
         int statusCode = 400;
 
@@ -189,6 +190,7 @@ public class RegionControllerIntegrationTest {
                 .andExpect(jsonPath("$.statusCode").value(statusCode));
 
     }
+
 
 
 }

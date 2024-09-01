@@ -1,5 +1,6 @@
 package com.sparta.ordersystem.order.management.Region.entity;
 
+
 import com.sparta.ordersystem.order.management.Store.entity.Store;
 import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
@@ -24,13 +25,14 @@ public class Region extends Timestamped {
     @Column(name="region_name")
     private String regionName;
 
-    @Column(name="is_active")
     @ColumnDefault("true")
-    private boolean isActive;
+    @Column(name="is_active")
+    boolean isActive;
 
     @OneToMany(mappedBy = "region")
     @ToString.Exclude
-    private List<Store> stores  = new ArrayList<>();
+    private List<Store> stores = new ArrayList<>();
+
 
     @Builder
     public Region(String regionName) {
@@ -39,7 +41,7 @@ public class Region extends Timestamped {
         this.isActive = true;
     }
 
-    public void updateRegionName(String regionName){
+    public void updateRegionName(String regionName) {
         this.regionName = regionName;
     }
 

@@ -2,20 +2,36 @@ package com.sparta.ordersystem.order.management.Region;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.ordersystem.order.management.Region.dto.*;
+import com.sparta.ordersystem.order.management.Region.entity.Region;
+import com.sparta.ordersystem.order.management.Region.repository.RegionRepository;
 import com.sparta.ordersystem.order.management.User.dto.LoginRequestDto;
 import com.sparta.ordersystem.order.management.User.dto.SignUpRequestDto;
+import com.sparta.ordersystem.order.management.User.entity.User;
+import com.sparta.ordersystem.order.management.User.repository.UserRepository;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +50,9 @@ class RegionServiceIntegrationTest {
     // json 객체 변환을 위한 객체
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     // 회원 가입
@@ -84,7 +103,6 @@ class RegionServiceIntegrationTest {
                         .content(objectMapper.writeValueAsString(customerDto)))
                 .andExpect(status().isOk());
 
-
     }
 
     //로그인 테스트 코드
@@ -119,18 +137,22 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역 컬럼 값
-            String regionName = "광화문";
+            String regionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createDto = new RegionCreateRequestDto(regionName);
 
+            User user = userRepository.findByEmail("master2@test.com").get();
+
             // when - then
             mockMvc.perform(post("/api/v1/region")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto))
-                        .header("Authorization",jwtToken))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createDto))
+                            .header("Authorization",jwtToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(regionName))
-                    .andExpect(jsonPath("$.regionId").exists());
+                    .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(user.getUser_id()));
 
         }
 
@@ -143,7 +165,7 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("owner2@test.com","!Password123");
             //생성할 지역 컬럼 값
-            String regionName = "광화문";
+            String regionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createDto = new RegionCreateRequestDto(regionName);
 
@@ -179,7 +201,7 @@ class RegionServiceIntegrationTest {
             String jwtToken = login("master2@test.com","!Password123");
 
             // 생성할 지역 값
-            String regionName = "광화문";
+            String regionName = "한식";
 
             // 생성할 지역 객체
             RegionCreateRequestDto createDto = new RegionCreateRequestDto(regionName);
@@ -200,9 +222,9 @@ class RegionServiceIntegrationTest {
             //when - then
             //1차 등록
             mockMvc.perform(post("/api/v1/region")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDto))
-                        .header("Authorization",jwtToken))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createDto))
+                            .header("Authorization",jwtToken))
                     .andExpect(jsonPath("$.regionName").value(regionName))
                     .andExpect(jsonPath("$.regionId").exists());
 
@@ -231,16 +253,18 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //수정할 지역 ID
             UUID updateRegionId;
             //수정할 지역명
-            String updateRegionName = "분당구";
+            String updateRegionName = "양식";
             //수정할 지역 객체
             RegionUpdateRequestDto updateReqDto = new RegionUpdateRequestDto(updateRegionName);
+
+            User user = userRepository.findByEmail("master2@test.com").get();
 
 
             // when - then
@@ -252,6 +276,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(user.getUser_id()))
                     .andReturn();
 
             // 생성된 지역 ID 가져오기
@@ -261,12 +287,15 @@ class RegionServiceIntegrationTest {
 
             // 지역 수정
             mockMvc.perform(patch("/api/v1/region/{region_id}",updateRegionId.toString())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateReqDto))
-                    .header("Authorization",jwtToken))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateReqDto))
+                            .header("Authorization",jwtToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(updateRegionName))
-                    .andExpect(jsonPath("$.regionId").value(updateRegionId.toString()));
+                    .andExpect(jsonPath("$.regionId").value(updateRegionId.toString()))
+                    .andExpect(jsonPath("$.updatedAt").exists())
+                    .andExpect(jsonPath("$.updatedBy").value(user.getUser_id()));
+
 
 
         }
@@ -284,14 +313,14 @@ class RegionServiceIntegrationTest {
             String jwtMasterToken = login("master2@test.com","!Password123");
 
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //수정할 지역 ID
             UUID updateRegionId;
             //수정할 지역명
-            String updateRegionName = "분당구";
+            String updateRegionName = "양식";
             //수정할 지역 객체
             RegionUpdateRequestDto updateReqDto = new RegionUpdateRequestDto(updateRegionName);
 
@@ -305,6 +334,7 @@ class RegionServiceIntegrationTest {
             // 에러 발생 시 출력되어야 하는 에러 코드
             int statusCode = 403;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // when - then
             // 지역 생성
@@ -315,6 +345,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 지역 ID 가져오기
@@ -344,20 +376,20 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역명 -1
-            String oneCreateRegionName = "광화문";
+            String oneCreateRegionName = "한식";
             //생성할 지역 객체 -1
             RegionCreateRequestDto oneCreateReqDto = new RegionCreateRequestDto(oneCreateRegionName);
 
             //생성할 지역명 -2
-            String twoCreateRegionName = "분당구";
+            String twoCreateRegionName = "양식";
             //생성할 지역 객체 -2
             RegionCreateRequestDto twoCreateReqDto = new RegionCreateRequestDto(twoCreateRegionName);
 
-            //"분당구" -> "광화문"
+            //"양식" -> "한식"
             //수정할 지역 ID
             UUID updateRegionId;
             //수정할 지역명
-            String updateRegionName = "광화문";
+            String updateRegionName = "한식";
             //수정할 지역 객체
             RegionUpdateRequestDto updateReqDto = new RegionUpdateRequestDto(updateRegionName);
 
@@ -372,24 +404,29 @@ class RegionServiceIntegrationTest {
             //에러 코드
             int statusCode = 400;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
 
             //when - then
-            // 등록 - 광화문
+            // 등록 - 한식
             mockMvc.perform(post("/api/v1/region")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(oneCreateReqDto))
                             .header("Authorization",jwtToken))
                     .andExpect(jsonPath("$.regionName").value(oneCreateRegionName))
-                    .andExpect(jsonPath("$.regionId").exists());
+                    .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()));
 
-            // 등록 - 분당구
+            // 등록 - 양식
             MvcResult mvcResult = mockMvc.perform(post("/api/v1/region")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(twoCreateReqDto))
                             .header("Authorization", jwtToken))
                     .andExpect(jsonPath("$.regionName").value(twoCreateRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
 
@@ -419,14 +456,14 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //수정할 지역 ID (임의 생성)
             UUID updateRegionId = UUID.randomUUID();
             //수정할 지역명
-            String updateRegionName = "분당구";
+            String updateRegionName = "양식";
             //수정할 지역 객체
             RegionUpdateRequestDto updateReqDto = new RegionUpdateRequestDto(updateRegionName);
 
@@ -465,12 +502,14 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //삭제할 지역 ID
             UUID deleteRegionId;
+
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
 
             // when - then
@@ -482,6 +521,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 지역 ID 가져오기
@@ -496,8 +537,11 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").value(deleteRegionId.toString()))
-                    .andExpect(jsonPath("$.active").value(false));
+                    .andExpect(jsonPath("$.active").value(false))
+                    .andExpect(jsonPath("$.deletedAt").exists())
+                    .andExpect(jsonPath("$.deletedBy").value(masterUser.getUser_id()));;
         }
+
 
 
         @Test
@@ -512,13 +556,14 @@ class RegionServiceIntegrationTest {
             String jwtMasterToken = login("master2@test.com","!Password123");
 
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //삭제할 지역 ID
             UUID deleteRegionId;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // 에러 발생 시 출력되어야 하는 에러 메시지
             /*
@@ -539,6 +584,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 지역 ID 가져오기
@@ -557,6 +604,7 @@ class RegionServiceIntegrationTest {
 
 
 
+
         @Test
         @DisplayName("MASTER가 지역 삭제 요청 : DB에 존재하지 않는 ID로 삭제 요청 ")
         @Order(10)
@@ -565,7 +613,7 @@ class RegionServiceIntegrationTest {
             //로그인한 사용자
             String jwtToken = login("master2@test.com","!Password123");
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
@@ -592,6 +640,14 @@ class RegionServiceIntegrationTest {
                     .andExpect(jsonPath("$.statusCode").value(statusCode));
         }
 
+
+   /*     @Test
+        @DisplayName("MASTER가 지역 삭제 요청 : 지역 삭제했을 때 연관된 가게도 삭제되어야 함 ")
+        @Order(11)
+        void deleteRegionCascadeStore() throws Exception{
+
+        }*/
+
     }
 
 
@@ -612,13 +668,14 @@ class RegionServiceIntegrationTest {
             String jwtCustomerToken = login("customer2@test.com","!Password123");
 
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
             //조회할 지역 ID
             UUID getRegionId;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
 
             // when - then
             // 지역 생성
@@ -629,6 +686,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 생성된 지역 ID 가져오기
@@ -673,14 +732,16 @@ class RegionServiceIntegrationTest {
             String jwtOwnerToken = login("owner2@test.com","!Password123");          //로그인한 사용자 - owner
             String jwtCustomerToken = login("customer2@test.com","!Password123");    //로그인한 사용자 - customer
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
+
             //생성할 지역명 배열
-            String[] createRegionNameArr = {"광화문","분당구","강서구"};
+            String[] createRegionNameArr = {"한식","양식","중식"};
             int createRegionLength = createRegionNameArr.length;
 
             //비교할 지역명 배열 (지역명 기준 오름차순)
             String[] sortedArr = createRegionNameArr.clone();
             Arrays.sort(sortedArr);
-            
+
             //생성할 지역 객체 배열
             RegionCreateRequestDto[] createReqDtoArr = new RegionCreateRequestDto[createRegionLength];
             for(int i =0; i< createRegionLength; i++){
@@ -705,6 +766,8 @@ class RegionServiceIntegrationTest {
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.regionName").value(createRegionNameArr[i]))
                         .andExpect(jsonPath("$.regionId").exists())
+                        .andExpect(jsonPath("$.createdAt").exists())
+                        .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                         .andReturn();
             }
 
@@ -756,6 +819,7 @@ class RegionServiceIntegrationTest {
 
         @DisplayName("모든 사용자가 지역 단건 조회 요청 : DB에 존재하지 않는 ID로 조회 요청 ")
         @Order(13)
+        @Test
         void getRegionNullRegionId() throws Exception{
             //given
             String jwtMasterToken = login("master2@test.com","!Password123");        //로그인한 사용자 - master
@@ -763,7 +827,7 @@ class RegionServiceIntegrationTest {
             String jwtCustomerToken = login("customer2@test.com","!Password123");    //로그인한 사용자 - customer
 
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
@@ -809,6 +873,7 @@ class RegionServiceIntegrationTest {
 
         @DisplayName("모든 사용자가 지역 단건 조회 요청 : 삭제된 RegionId로 조회 요청 ")
         @Order(14)
+        @Test
         void getRegionAlreadyDeletedRegionId() throws Exception{
             //given
             String jwtMasterToken = login("master2@test.com","!Password123");        //로그인한 사용자 - master
@@ -816,7 +881,7 @@ class RegionServiceIntegrationTest {
             String jwtCustomerToken = login("customer2@test.com","!Password123");    //로그인한 사용자 - customer
 
             //생성할 지역명
-            String createRegionName = "광화문";
+            String createRegionName = "한식";
             //생성할 지역 객체
             RegionCreateRequestDto createReqDto = new RegionCreateRequestDto(createRegionName);
 
@@ -832,6 +897,8 @@ class RegionServiceIntegrationTest {
             // 에러 코드
             int statusCode = 404;
 
+            User masterUser = userRepository.findByEmail("master2@test.com").get();
+
 
             // when - then
             // 지역 생성
@@ -842,6 +909,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").exists())
+                    .andExpect(jsonPath("$.createdAt").exists())
+                    .andExpect(jsonPath("$.createdBy").value(masterUser.getUser_id()))
                     .andReturn();
 
 
@@ -859,6 +928,8 @@ class RegionServiceIntegrationTest {
                     .andExpect(jsonPath("$.regionName").value(createRegionName))
                     .andExpect(jsonPath("$.regionId").value(deleteRegionId.toString()))
                     .andExpect(jsonPath("$.active").value(false))
+                    .andExpect(jsonPath("$.deletedAt").exists())
+                    .andExpect(jsonPath("$.deletedBy").value(masterUser.getUser_id()))
                     .andReturn();
 
             // 삭제된 지역 ID 가져오기

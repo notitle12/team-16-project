@@ -6,7 +6,7 @@ import com.sparta.ordersystem.order.management.Region.repository.RegionRepositor
 import com.sparta.ordersystem.order.management.User.entity.User;
 import com.sparta.ordersystem.order.management.User.entity.UserRoleEnum;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.bridge.Message;
+
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -145,7 +145,7 @@ public class RegionService {
      * @return 조회한 지역 엔티티
      */
     private Region findRegionById(UUID regionId) {
-        return regionRepository.findById(regionId)
+        return regionRepository.findByRegionIdAndIsActiveTrue(regionId)
                 .orElseThrow(() -> createNullPointerException(REGION_ID, regionId.toString()));
     }
 
@@ -212,6 +212,8 @@ public class RegionService {
         return RegionCreateResponseDto.builder()
                 .regionId(region.getRegionId())
                 .regionName(region.getRegionName())
+                .createdAt(region.getCreated_at())
+                .createdBy(region.getCreated_by())
                 .build();
     }
 
@@ -239,12 +241,13 @@ public class RegionService {
         return RegionUpdateResponseDto.builder()
                 .regionId(region.getRegionId())
                 .regionName(region.getRegionName())
+                .updatedAt(region.getUpdated_at())
+                .updatedBy(region.getUpdated_by())
                 .build();
     }
 
 
     /**
-     * Region -> RegionDeleteResponseDto 변환
      * Region -> RegionDeleteResponseDto 변환
      *
      * @param region 변환할 지역 엔티티
@@ -255,6 +258,8 @@ public class RegionService {
                 .regionId(region.getRegionId())
                 .regionName(region.getRegionName())
                 .isActive(region.isActive())
+                .deletedAt(region.getDeleted_at())
+                .deletedBy(region.getDeleted_by())
                 .build();
     }
 }
