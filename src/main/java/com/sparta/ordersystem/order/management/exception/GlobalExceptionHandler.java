@@ -8,6 +8,7 @@ import com.sparta.ordersystem.order.management.Payment.exception.PaymentNotFound
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -99,6 +100,17 @@ public class GlobalExceptionHandler {
                 restApiException,
                 // HTTP status code
                 HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<RestApiException> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex){
+        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                // HTTP body
+                restApiException,
+                // HTTP status code
+                HttpStatus.BAD_REQUEST
         );
     }
 

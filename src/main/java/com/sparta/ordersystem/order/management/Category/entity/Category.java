@@ -2,13 +2,12 @@ package com.sparta.ordersystem.order.management.Category.entity;
 
 
 import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @Table(name="p_category")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Category {
+public class Category extends Timestamped {
 
     @Id
     @Column(name="category_id")
@@ -31,6 +30,7 @@ public class Category {
     boolean isActive;
 
     @OneToMany(mappedBy = "category")
+    @ToString.Exclude
     private List<Store> stores = new ArrayList<>();
 
 
@@ -45,7 +45,15 @@ public class Category {
         this.categoryName = categoryName;
     }
 
-    public void softDeleted(){
+    public void softDeleted(Long userId){
         this.isActive = false;
+        this.deleted_at = LocalDateTime.now();
+        this.deleted_by = userId;
+
+        if(!stores.isEmpty()) {
+            for (Store store : stores) {
+                store.softDeleted(userId);
+            }
+        }
     }
 }

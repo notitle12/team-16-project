@@ -26,56 +26,49 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category")
-    public CategoryCreateResponseDto createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto,
+    public ResponseEntity<CategoryCreateResponseDto> createCategory(@RequestBody @Valid  CategoryCreateRequestDto categoryCreateRequestDto,
                                                     @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return categoryService.createCategory(categoryCreateRequestDto, userDetails.getUser());
+        return ResponseEntity.ok(
+                categoryService.createCategory(categoryCreateRequestDto, userDetails.getUser())
+        );
     }
 
 
     @GetMapping("/category/{category_id}")
-    public CategoryGetResponseDto getCategory(@PathVariable UUID category_id){
-        return categoryService.getCategory(category_id);
+    public ResponseEntity<CategoryGetResponseDto> getCategory(@PathVariable UUID category_id){
+        return ResponseEntity.ok(
+                categoryService.getCategory(category_id)
+        );
     }
 
     @GetMapping("/category")
-    public List<CategoryGetResponseDto> getAllCategories(@RequestParam("page") int page,
+    public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories(@RequestParam("page") int page,
                                                          @RequestParam("size") int size,
                                                          @RequestParam("sortBy") String sortBy,
                                                          @RequestParam("isAsc") boolean isAsc){
-        return categoryService.getAllCategory(page-1, size, sortBy, isAsc);
+        return ResponseEntity.ok(
+                categoryService.getAllCategory(page-1, size, sortBy, isAsc)
+        );
     }
 
 
     @PatchMapping("/category/{category_id}")
-    public CategoryUpdateResponseDto updateCategory(@PathVariable UUID category_id,
+    public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@PathVariable UUID category_id,
                                                     @RequestBody @Valid CategoryUpdateRequestDto categoryUpdateRequestDto,
                                                     @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return categoryService.updateCategory(category_id,categoryUpdateRequestDto, userDetails.getUser());
+        return ResponseEntity.ok(
+                categoryService.updateCategory(category_id,categoryUpdateRequestDto, userDetails.getUser())
+        );
     }
 
 
     @DeleteMapping("/category/{category_id}")
-    public CategoryDeleteResponseDto deleteCategory(@PathVariable UUID category_id,
+    public ResponseEntity<CategoryDeleteResponseDto> deleteCategory(@PathVariable UUID category_id,
                                                     @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return categoryService.deleteCategory(category_id, userDetails.getUser());
+        return ResponseEntity.ok(
+                categoryService.deleteCategory(category_id, userDetails.getUser())
+        );
     }
 
-
-
-
-
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
 
 }

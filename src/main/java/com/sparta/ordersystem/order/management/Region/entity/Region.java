@@ -1,13 +1,13 @@
 package com.sparta.ordersystem.order.management.Region.entity;
 
+
 import com.sparta.ordersystem.order.management.Store.entity.Store;
+import com.sparta.ordersystem.order.management.common.Timestamped;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Table(name="p_region")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Region {
+public class Region extends Timestamped {
 
     @Id
     @Column(name="region_id")
@@ -25,12 +25,14 @@ public class Region {
     @Column(name="region_name")
     private String regionName;
 
-    @Column(name="is_active")
     @ColumnDefault("true")
-    private boolean isActive;
+    @Column(name="is_active")
+    boolean isActive;
 
     @OneToMany(mappedBy = "region")
-    private List<Store> stores  = new ArrayList<>();
+    @ToString.Exclude
+    private List<Store> stores = new ArrayList<>();
+
 
     @Builder
     public Region(String regionName) {
@@ -39,11 +41,19 @@ public class Region {
         this.isActive = true;
     }
 
-    public void updateRegionName(String regionName){
+    public void updateRegionName(String regionName) {
         this.regionName = regionName;
     }
 
-    public void softDeleted(){
+    public void softDeleted(Long userId){
         this.isActive = false;
+        this.deleted_at = LocalDateTime.now();
+        this.deleted_by = userId;
+
+        if(!stores.isEmpty()) {
+            for (Store store : stores) {
+                store.softDeleted(userId);
+            }
+        }
     }
 }

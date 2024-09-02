@@ -115,6 +115,10 @@ public class StoreService {
                 ()-> new IllegalArgumentException("잘못된 가게 id 입니다.")
         );
 
+        if(!user.getUser_id().equals(store.getUser().getUser_id())){
+            throw new AccessDeniedException("본인 가게만 수정 가능합니다 : " + storeId.toString());
+        }
+
         if(storeName != null){
             store.updateStoreName(storeName);
         }
@@ -152,7 +156,7 @@ public class StoreService {
                 ()-> new IllegalArgumentException("잘못된 가게 id 입니다.")
         );
 
-        store.softDeleted();
+        store.softDeleted(user.getUser_id());
 
         return convertToStoreDeleteResponseDto(store);
     }
