@@ -95,12 +95,14 @@ git clone https://github.com/notitle12/team-16-project.git
 - Framework
   - Spring Boot
   - Spring Security
+  - Spring Data JPA
 - Collaboration
   - Slack
   - Git
   - ZEP
 - Data
   - PostgreSQL
+  - Querydsl
 - Infrastructure
   - AWS
   - Docker
@@ -161,4 +163,4 @@ git clone https://github.com/notitle12/team-16-project.git
     - 도메인 + 기능들
     - ex) [UserService.java](http://UserService.java) , UserRepository
 - dto 생성시
-    - 기능+ Request/Response + Dto
+    - 도메인 + 기능+ Request/Response + Dto
