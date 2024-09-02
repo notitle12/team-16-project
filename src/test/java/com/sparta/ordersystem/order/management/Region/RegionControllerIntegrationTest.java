@@ -176,7 +176,7 @@ public class RegionControllerIntegrationTest {
         RegionUpdateRequestDto updateDto = new RegionUpdateRequestDto(regionUpdateName);
 
         // 에러 메시지
-        String errorMessage = "regionName cannot be blank";
+        String errorMessage = "지역명을 반드시 입력해주세요.";
         // 에러 코드
         int statusCode = 400;
 
