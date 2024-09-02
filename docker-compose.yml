@@ -1,0 +1,26 @@
+version: '3.8'  # 최신 버전으로 업데이트
+
+services:
+  app:
+    build:
+      context: .  # 현재 디렉토리에서 Dockerfile을 찾음
+      dockerfile: Dockerfile  # 사용할 Dockerfile의 이름
+    ports:
+      - "8080:8080"  # 컨테이너의 포트를 호스트와 연결
+    depends_on:
+      - postgres  # postgres 서비스가 먼저 시작되어야 함
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5433/order  # 데이터베이스 URL
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456789a
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+
+  postgres:
+    image: postgres:latest  # 최신 PostgreSQL 이미지를 사용
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 123456789a
+      POSTGRES_DB: order
+    ports:
+      - "5433:5432"  # 컨테이너의 PostgreSQL 포트를 호스트와 연결

@@ -27,6 +27,13 @@ repositories {
 }
 
 dependencies{
+    // lombok
+    implementation 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+    // annotations
+    implementation 'org.jetbrains:annotations:22.0.0'
+
     // JWT
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
@@ -39,17 +46,23 @@ dependencies{
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // 초기 의존성
-    implementation 'io.jsonwebtoken:jjwt:0.12.6'
+//    implementation 'io.jsonwebtoken:jjwt:0.12.6'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
     compileOnly 'org.projectlombok:lombok'
+
     runtimeOnly 'org.postgresql:postgresql'
+
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     //queryDSL 추가
     implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
     annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
@@ -59,4 +72,11 @@ dependencies{
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+bootJar {
+    archiveFileName = 'order-management-0.0.1-SNAPSHOT.jar'  // JAR 파일 이름 설정
+}
+
+jar {
+    enabled = false  // 일반 JAR 파일 생성을 비활성화
 }
