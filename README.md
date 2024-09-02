@@ -2,7 +2,6 @@
 
 # 개발 기간 및 작업 관리
 
----
 
 ## 개발 기간
 
@@ -51,6 +50,8 @@
 ## 인프라 구성도
 
 https://drive.google.com/file/d/1hTWDe41GN8kNfux5PVuqYhA7AcCfgvKW/view?usp=sharing
+![image](https://github.com/user-attachments/assets/12444879-bc0a-41e8-aad0-33ea17824e9c)  
+
 
 ## 실행방법
 
@@ -83,11 +84,11 @@ git clone https://github.com/notitle12/team-16-project.git
 # ERD
 
 - [https://dbdiagram.io/d/주문관리-플랫폼ERD-66c6a529a346f9518cbd14e9](https://dbdiagram.io/d/%EC%A3%BC%EB%AC%B8%EA%B4%80%EB%A6%AC-%ED%94%8C%EB%9E%AB%ED%8F%BCERD-66c6a529a346f9518cbd14e9)
+![image](https://github.com/user-attachments/assets/46d731cb-93de-4c32-b576-a5c877e7a2d4)
 
 
 # 기술 스택
 
----
 
 - Programming language
   - Java
