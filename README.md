@@ -134,7 +134,7 @@ git clone https://github.com/notitle12/team-16-project.git
 - 변수명
     
     
-    ●카멜 표기법(Camel Case) - 일반적인 변수명들에 사용
+    ●카멜 표기법(Camel Case) - 일반적인 변수들에 사용
     
     첫 글자를 대문자로 적되, 맨 앞에 오는 글자는 소문자로 표기하는 것이다.
     
@@ -144,7 +144,7 @@ git clone https://github.com/notitle12/team-16-project.git
     int totalNumber;
     ```
     
-    ●스네이크 표기법(Snake Case) - entity의 변수명들에 사용
+    ●스네이크 표기법(Snake Case) - DB 테이블의 컬럼에 사용
     
     단어 사이에 언더바를 넣어서 표기하는 것이다.
     
